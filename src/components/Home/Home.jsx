@@ -4,7 +4,7 @@ const Home = () => {
     return (
         <div>
             <h1>Welcome to ClimbHub</h1>
-            <p>Your one-stop destination for all things climbing and NIGGGGGGAAAAAA.</p>
+            <p>Your one-stop destination for all things climbing and .</p>
         </div>
     );
 };
