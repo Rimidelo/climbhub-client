@@ -1,11 +1,12 @@
 import React from 'react';
 import { Drawer, Box, Typography, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
-// import other icons as needed
+import { useNavigate } from 'react-router-dom';
 
 const drawerWidth = 240; // Adjust width to taste
 
 function DesktopNav() {
+    const navigate = useNavigate();
   return (
     <Drawer
       variant="permanent"
@@ -38,7 +39,7 @@ function DesktopNav() {
         {/* Navigation Items */}
         <List sx={{ width: '100%' }}>
           <ListItem disablePadding>
-            <ListItemButton>
+            <ListItemButton onClick={() => navigate('/')}>
               <ListItemIcon>
                 <HomeIcon />
               </ListItemIcon>
