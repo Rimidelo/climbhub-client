@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { register } from '../../API/api.js';
 import logoImg from '../../assets/loginImg.png';
 import {
   Box,
@@ -6,13 +7,11 @@ import {
   TextField,
   Button,
   Typography,
-  Divider,
   Stack,
   Link,
   Alert,
   AlertTitle,
 } from '@mui/material';
-import GoogleIcon from '@mui/icons-material/Google';
 
 function validatePassword(password) {
   return {
@@ -34,13 +33,14 @@ function RegisterPage() {
 
   const handleRegister = () => {
     console.log('Name:', name, 'Email:', email, 'Password:', password);
-    // TODO: call your signup API
+    try {
+      const response = register(name, email, password);
+      console.log('Registration successful:', response);
+    } catch (error) {
+      console.error('Registration failed:', error);
+    }
   };
 
-  const handleGoogleRegister = () => {
-    console.log('Google register triggered');
-    // TODO: call your Google OAuth flow
-  };
 
   return (
     <Box
@@ -158,21 +158,8 @@ function RegisterPage() {
             </Button>
 
             <Stack direction="row" spacing={2} sx={{ alignItems: 'center', my: 2 }}>
-              <Divider sx={{ flex: 1 }} />
-              <Typography variant="body2" color="textSecondary">
-                OR
-              </Typography>
-              <Divider sx={{ flex: 1 }} />
             </Stack>
 
-            <Button
-              variant="outlined"
-              startIcon={<GoogleIcon />}
-              fullWidth
-              onClick={handleGoogleRegister}
-            >
-              Sign up with Google
-            </Button>
           </Paper>
 
           {/* "Already have an account? Log In" box */}

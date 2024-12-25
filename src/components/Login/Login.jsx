@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import logoImg from '../../assets/loginImg.png';
+import { login } from '../../API/api.js';
 
 import {
   Box,
@@ -7,11 +8,8 @@ import {
   TextField,
   Button,
   Typography,
-  Divider,
   Link,
-  Stack,
 } from '@mui/material';
-import GoogleIcon from '@mui/icons-material/Google';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
@@ -19,13 +17,13 @@ function LoginPage() {
 
   const handleLogin = () => {
     console.log('Email:', email, 'Password:', password);
-    // TODO: call your login API
+    try {
+      const response = login(email, password);
+      console.log('Login successful:', response);
+    } catch (error) {
+      console.error('Login failed:', error);
   };
-
-  const handleGoogleLogin = () => {
-    console.log('Google login triggered');
-    // TODO: call your Google OAuth flow
-  };
+};
 
   return (
     <Box
@@ -104,25 +102,6 @@ function LoginPage() {
 
             <Button variant="contained" color="primary" fullWidth onClick={handleLogin}>
               Log In
-            </Button>
-
-            {/* Divider or "OR" text */}
-            <Stack direction="row" spacing={2} sx={{ alignItems: 'center', my: 2 }}>
-              <Divider sx={{ flex: 1 }} />
-              <Typography variant="body2" color="textSecondary">
-                OR
-              </Typography>
-              <Divider sx={{ flex: 1 }} />
-            </Stack>
-
-            {/* Google Login Button */}
-            <Button
-              variant="outlined"
-              startIcon={<GoogleIcon />}
-              fullWidth
-              onClick={handleGoogleLogin}
-            >
-              Log in with Google
             </Button>
 
             {/* (Optional) Forgot Password Link */}
