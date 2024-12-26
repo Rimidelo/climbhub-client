@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+// RegisterPage.js
+import React, { useState, useContext } from 'react';
 import { register } from '../../API/api.js';
+import { UserContext } from '../../contexts/UserContext';
 import logoImg from '../../assets/loginImg.png';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Paper,
@@ -24,46 +27,55 @@ function validatePassword(password) {
 }
 
 function RegisterPage() {
+  const { setUser } = useContext(UserContext); 
+  // You could also use handleLogin if you prefer that style.
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordTouched, setPasswordTouched] = useState(false);
+  const navigate = useNavigate();
 
   const passwordChecks = validatePassword(password);
 
-  const handleRegister = () => {
-    console.log('Name:', name, 'Email:', email, 'Password:', password);
+  const handleRegister = async () => {
     try {
-      const response = register(name, email, password);
-      console.log('Registration successful:', response);
+      const response = await register(name, email, password);
+
+      if (response.newUser) {
+        // Save the user in context
+        setUser(response.newUser);
+        console.log('Registration successful. User context updated:', response.newUser);
+        navigate('/preferences');
+      }
     } catch (error) {
       console.error('Registration failed:', error);
+      // Possibly show an error message to the user
     }
   };
-
 
   return (
     <Box
       sx={{
         height: '100vh',
         display: 'flex',
-        flexDirection: { xs: 'column', md: 'row' }, // Stack on small screens, side-by-side on medium+
+        flexDirection: { xs: 'column', md: 'row' },
       }}
     >
       {/* LEFT SIDE: Logo */}
       <Box
         sx={{
           flex: 1,
-          display: { xs: 'none', md: 'flex' }, // Hide on small screens
+          display: { xs: 'none', md: 'flex' },
           alignItems: 'center',
           justifyContent: 'center',
           backgroundImage: `url(${logoImg})`,
           backgroundSize: 'contain',
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
-          marginLeft: 3, // Add margin on the left
-          borderRadius: 4, // Curved corners for the image container
-          overflow: 'hidden', // Ensures the image respects the border radius
+          marginLeft: 3,
+          borderRadius: 4,
+          overflow: 'hidden',
         }}
       />
 
@@ -78,7 +90,6 @@ function RegisterPage() {
           p: { xs: 2, md: 4 },
         }}
       >
-        {/* Container for the Register form */}
         <Box sx={{ width: { xs: '100%', sm: 350 } }}>
           <Paper
             elevation={3}
@@ -87,14 +98,13 @@ function RegisterPage() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              borderRadius: 4, // Add curved corners to the form box
+              borderRadius: 4,
             }}
           >
             <Typography variant="h4" sx={{ fontFamily: 'sans-serif', mb: 2 }}>
               ClimbHub
             </Typography>
 
-            {/* Name Field */}
             <TextField
               variant="outlined"
               label="Full Name"
@@ -104,7 +114,6 @@ function RegisterPage() {
               onChange={(e) => setName(e.target.value)}
             />
 
-            {/* Email Field */}
             <TextField
               variant="outlined"
               label="Email"
@@ -115,7 +124,6 @@ function RegisterPage() {
               onChange={(e) => setEmail(e.target.value)}
             />
 
-            {/* Password Field */}
             <TextField
               variant="outlined"
               label="Password"
@@ -146,7 +154,7 @@ function RegisterPage() {
                       At least one lowercase letter
                     </li>
                     <li style={{ color: passwordChecks.hasSymbol ? 'green' : 'inherit' }}>
-                      At least one symbol (e.g., !@#$%)
+                      At least one symbol
                     </li>
                   </ul>
                 </Alert>
@@ -159,17 +167,15 @@ function RegisterPage() {
 
             <Stack direction="row" spacing={2} sx={{ alignItems: 'center', my: 2 }}>
             </Stack>
-
           </Paper>
 
-          {/* "Already have an account? Log In" box */}
           <Paper
             elevation={3}
             sx={{
               mt: 2,
               p: 2,
               textAlign: 'center',
-              borderRadius: 4, // Add curved corners to the "Already have an account?" box
+              borderRadius: 4,
             }}
           >
             <Typography variant="body1">
