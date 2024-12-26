@@ -9,6 +9,7 @@ import Home from './components/Home/Home';
 import VideoUploder from './components/UploadVideo/UploadVideo'
 import VideoReels from './components/VideoReels/VideoReels'
 import Preferences from './components/Preferences/Preferences'
+import Feed from './components/Feed/Feed';
 
 function App() {
   return (
@@ -20,7 +21,7 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
           </Route>
           <Route element={<DefaultLayout />}>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<Feed />} />
             <Route path="/video-uplode" element={<VideoUploder />} />
             <Route path="/reels" element={<VideoReels />} />
             <Route path="/preferences" element={<Preferences />} />

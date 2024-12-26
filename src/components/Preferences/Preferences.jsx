@@ -1,17 +1,37 @@
+// src/components/Preferences/Preferences.jsx
+
 import React, { useState, useEffect, useContext } from 'react';
 import { getGyms, createProfile } from '../../API/api'; // Adjust the path if necessary
 import { useNavigate } from 'react-router-dom';
-import { UserContext } from '../../contexts/UserContext'; // Ensure you have a UserContext set up
+import { UserContext } from '../../contexts/UserContext';
+import {
+  Box,
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Button,
+  Paper,
+  Alert,
+  CircularProgress,
+  Grid,
+  Autocomplete,
+  TextField,
+  Chip,
+} from '@mui/material';
 
 const Preferences = () => {
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
 
   const [skillLevel, setSkillLevel] = useState('');
-  const [selectedGyms, setSelectedGyms] = useState([]);
+  const [selectedGyms, setSelectedGyms] = useState([]); // Array of gym objects
   const [gymsList, setGymsList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   // Fetch gyms when component mounts
   useEffect(() => {
@@ -29,19 +49,16 @@ const Preferences = () => {
     fetchGyms();
   }, []);
 
-  const handleGymSelection = (gymId) => {
-    setSelectedGyms((prev) => {
-      if (prev.includes(gymId)) {
-        return prev.filter((id) => id !== gymId);
-      } else {
-        return [...prev, gymId];
-      }
-    });
+  // Handle gym selection via Autocomplete
+  const handleGymChange = (event, value) => {
+    setSelectedGyms(value);
   };
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setSuccess('');
 
     // Validate user presence
     if (!user || !user._id) {
@@ -53,69 +70,141 @@ const Preferences = () => {
     const profileData = {
       user: user._id,
       skillLevel,
-      gyms: selectedGyms,
+      gyms: selectedGyms.map((gym) => gym._id), // Extract gym IDs
     };
 
     try {
+      setSubmitting(true);
       await createProfile(profileData);
-      // Navigate to home (/) upon success
-      navigate('/');
+      setSubmitting(false);
+      setSuccess('Preferences saved successfully!');
+      // Navigate to home after a short delay to show success message
+      setTimeout(() => {
+        navigate('/');
+      }, 1500);
     } catch (err) {
       console.error('Error creating profile:', err);
-      setError(err.response?.data?.error || 'Failed to create profile.');
+      setError(err.response?.data?.message || 'Failed to create profile.');
+      setSubmitting(false);
     }
   };
 
   if (loading) {
-    return <div>Loading gyms...</div>;
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          height: '80vh',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
   }
 
   return (
-    <div>
-      <h2>Set Your Preferences</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <form onSubmit={handleSubmit}>
-        {/* Skill Level Selection */}
-        <div>
-          <label htmlFor="skillLevel">Skill Level:</label>
-          <select
-            id="skillLevel"
-            value={skillLevel}
-            onChange={(e) => setSkillLevel(e.target.value)}
-            required
-          >
-            <option value="">Select your level</option>
-            <option value="beginner">Beginner</option>
-            <option value="intermediate">Intermediate</option>
-            <option value="advanced">Advanced</option>
-          </select>
-        </div>
+    <Box
+      sx={{
+        minHeight: '80vh',
+        display: 'flex',
+        alignItems: 'center',
+        p: 2,
+      }}
+    >
+      <Paper
+        elevation={3}
+        sx={{
+          padding: 4,
+          maxWidth: 600,
+          width: '100%',
+          borderRadius: 2,
+        }}
+      >
+        <Typography variant="h5" gutterBottom align="center">
+          Set Your Preferences
+        </Typography>
 
-        {/* Gyms Selection */}
-        <div>
-          <label>Gyms:</label>
-          <div>
-            {gymsList.map((gym) => (
-              <div key={gym._id}>
-                <input
-                  type="checkbox"
-                  id={`gym-${gym._id}`}
-                  value={gym._id}
-                  onChange={() => handleGymSelection(gym._id)}
-                  checked={selectedGyms.includes(gym._id)}
-                />
-                <label htmlFor={`gym-${gym._id}`}>
-                  {gym.name} - {gym.location}
-                </label>
-              </div>
-            ))}
-          </div>
-        </div>
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
 
-        {/* Submit Button */}
-        <button type="submit">Save Preferences</button>
-      </form>
-    </div>
+        {success && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            {success}
+          </Alert>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <Grid container spacing={3}>
+            {/* Skill Level Selection */}
+            <Grid item xs={12}>
+              <FormControl fullWidth required>
+                <InputLabel id="skill-level-label">Skill Level</InputLabel>
+                <Select
+                  labelId="skill-level-label"
+                  id="skillLevel"
+                  value={skillLevel}
+                  label="Skill Level"
+                  onChange={(e) => setSkillLevel(e.target.value)}
+                >
+                  <MenuItem value="beginner">Beginner</MenuItem>
+                  <MenuItem value="intermediate">Intermediate</MenuItem>
+                  <MenuItem value="advanced">Advanced</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+
+            {/* Gyms Selection with Autocomplete */}
+            <Grid item xs={12}>
+              <Typography variant="subtitle1" gutterBottom>
+                Select Your Preferred Gyms
+              </Typography>
+              <Autocomplete
+                multiple
+                id="gyms-autocomplete"
+                options={gymsList}
+                getOptionLabel={(option) => `${option.name} - ${option.location}`}
+                value={selectedGyms}
+                onChange={handleGymChange}
+                renderTags={(value, getTagProps) =>
+                  value.map((option, index) => (
+                    <Chip
+                      label={`${option.name} - ${option.location}`}
+                      {...getTagProps({ index })}
+                      key={option._id}
+                    />
+                  ))
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="outlined"
+                    placeholder="Select Gyms"
+                  />
+                )}
+              />
+            </Grid>
+
+            {/* Submit Button */}
+            <Grid item xs={12}>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                fullWidth
+                disabled={submitting}
+              >
+                {submitting ? <CircularProgress size={24} color="inherit" /> : 'Save Preferences'}
+              </Button>
+            </Grid>
+          </Grid>
+        </form>
+      </Paper>
+    </Box>
   );
 };
 
