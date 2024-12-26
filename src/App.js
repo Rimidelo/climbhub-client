@@ -6,6 +6,7 @@ import DefaultLayout from './components/Layout/DefaultLayout';
 import LoginPage from './components/Login/Login';
 import RegisterPage from './components/Register/Register';
 import Home from './components/Home/Home';
+import VideoUploder from './components/UploadVideo/UploadVideo'
 
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
         </Route>
         <Route element={<DefaultLayout />}>
           <Route path="/" element={<Home />} />
+          <Route path="/video-uplode" element={<VideoUploder />} />
         </Route>
       </Routes>
     </BrowserRouter>
