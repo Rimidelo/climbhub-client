@@ -7,6 +7,7 @@ import LoginPage from './components/Login/Login';
 import RegisterPage from './components/Register/Register';
 import Home from './components/Home/Home';
 
+
 function App() {
   return (
     <BrowserRouter>

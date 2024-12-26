@@ -23,3 +23,25 @@ export const register = async (name, email, password) => {
         throw error;
     }
 };
+
+// Function to get gyms from the server
+export const getGyms = async () => {
+    try {
+        const response = await axios.get(`${API_URL}/gyms`); // Corrected endpoint
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching gyms:', error);
+        throw error;
+    }
+};
+
+// Function to create a new profile
+export const createProfile = async (profileData) => {
+    try {
+        const response = await axios.post(`${API_URL}/profile`, profileData);
+        return response.data;
+    } catch (error) {
+        console.error('Error creating profile:', error);
+        throw error;
+    }
+};

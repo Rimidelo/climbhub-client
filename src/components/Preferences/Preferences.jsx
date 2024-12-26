@@ -1,130 +1,137 @@
 // Preferences.jsx
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-// If using React Router for navigation
+
+import React, { useState, useEffect, useContext } from 'react';
+import { getGyms, createProfile } from './api'; // Adjust the path if necessary
 import { useNavigate } from 'react-router-dom';
+import { UserContext } from './UserContext'; // Ensure you have a UserContext set up
 
-const Preferences = ({ user }) => {
-  const navigate = useNavigate(); // For navigation after submission
+const Preferences = () => {
+    const navigate = useNavigate();
+    const { user } = useContext(UserContext); // Access the user from context
 
-  const [skillLevel, setSkillLevel] = useState('');
-  const [preferredStyles, setPreferredStyles] = useState('');
-  const [selectedGyms, setSelectedGyms] = useState([]);
-  const [gymsList, setGymsList] = useState([]); // To populate gym options
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+    const [skillLevel, setSkillLevel] = useState('');
+    const [preferredStyles, setPreferredStyles] = useState('');
+    const [selectedGyms, setSelectedGyms] = useState([]);
+    const [gymsList, setGymsList] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
 
-  // Fetch available gyms from the server (assuming you have a /api/gyms endpoint)
-  useEffect(() => {
-    const fetchGyms = async () => {
-      try {
-        const response = await axios.get('/api/gyms'); // Adjust the endpoint as necessary
-        setGymsList(response.data);
-        setLoading(false);
-      } catch (err) {
-        console.error('Error fetching gyms:', err);
-        setError('Failed to load gyms.');
-        setLoading(false);
-      }
+    // Fetch gyms when component mounts
+    useEffect(() => {
+        const fetchGyms = async () => {
+            try {
+                const gyms = await getGyms();
+                setGymsList(gyms);
+                setLoading(false);
+            } catch (err) {
+                console.error('Error fetching gyms:', err);
+                setError('Failed to load gyms.');
+                setLoading(false);
+            }
+        };
+
+        fetchGyms();
+    }, []);
+
+    // Handle gym selection toggling
+    const handleGymSelection = (gymId) => {
+        setSelectedGyms((prev) => {
+            if (prev.includes(gymId)) {
+                return prev.filter(id => id !== gymId);
+            } else {
+                return [...prev, gymId];
+            }
+        });
     };
 
-    fetchGyms();
-  }, []);
+    // Handle form submission
+    const handleSubmit = async (e) => {
+        e.preventDefault();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
+        // Validate user presence
+        if (!user || !user._id) {
+            setError('User not found. Please login again.');
+            return;
+        }
 
-    // Prepare data
-    const profileData = {
-      user: user._id, // Ensure user ID is available
-      skillLevel,
-      preferredStyles: preferredStyles.split(',').map(style => style.trim()), // Convert comma-separated string to array
-      gyms: selectedGyms, // Array of gym IDs
+        // Prepare profile data
+        const profileData = {
+            user: user._id,
+            skillLevel,
+            preferredStyles: preferredStyles.split(',').map(style => style.trim()),
+            gyms: selectedGyms,
+        };
+
+        try {
+            await createProfile(profileData);
+            // Navigate to dashboard or another appropriate page
+            navigate('/dashboard'); // Adjust the path as needed
+        } catch (err) {
+            console.error('Error creating profile:', err);
+            setError(err.response?.data?.error || 'Failed to create profile.');
+        }
     };
 
-    try {
-      const response = await axios.post('/profile', profileData); // Adjust the endpoint if necessary
-      console.log('Profile created:', response.data);
-      // Navigate to dashboard or another page
-      navigate('/dashboard'); // Adjust the path as needed
-    } catch (err) {
-      console.error('Error creating profile:', err);
-      setError(err.response?.data?.error || 'Failed to create profile.');
-    }
-  };
+    if (loading) return <div>Loading gyms...</div>;
 
-  const handleGymSelection = (e) => {
-    const { value, checked } = e.target;
-    if (checked) {
-      setSelectedGyms(prev => [...prev, value]);
-    } else {
-      setSelectedGyms(prev => prev.filter(gymId => gymId !== value));
-    }
-  };
-
-  if (loading) return <p>Loading gyms...</p>;
-  if (error) return <p style={{ color: 'red' }}>{error}</p>;
-
-  return (
-    <div>
-      <h2>Set Your Preferences</h2>
-      <form onSubmit={handleSubmit}>
-        {/* Skill Level */}
+    return (
         <div>
-          <label htmlFor="skillLevel">Skill Level:</label>
-          <select
-            id="skillLevel"
-            value={skillLevel}
-            onChange={(e) => setSkillLevel(e.target.value)}
-            required
-          >
-            <option value="">-- Select Skill Level --</option>
-            <option value="beginner">Beginner</option>
-            <option value="intermediate">Intermediate</option>
-            <option value="advanced">Advanced</option>
-          </select>
+            <h2>Set Your Preferences</h2>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+            <form onSubmit={handleSubmit}>
+                {/* Skill Level Selection */}
+                <div>
+                    <label htmlFor="skillLevel">Skill Level:</label>
+                    <select
+                        id="skillLevel"
+                        value={skillLevel}
+                        onChange={(e) => setSkillLevel(e.target.value)}
+                        required
+                    >
+                        <option value="">Select your level</option>
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate">Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                    </select>
+                </div>
+
+                {/* Preferred Styles Input */}
+                <div>
+                    <label htmlFor="preferredStyles">Preferred Styles:</label>
+                    <input
+                        type="text"
+                        id="preferredStyles"
+                        value={preferredStyles}
+                        onChange={(e) => setPreferredStyles(e.target.value)}
+                        placeholder="e.g., Boxing, Muay Thai"
+                        required
+                    />
+                </div>
+
+                {/* Gyms Selection */}
+                <div>
+                    <label>Gyms:</label>
+                    <div>
+                        {gymsList.map(gym => (
+                            <div key={gym._id}>
+                                <input
+                                    type="checkbox"
+                                    id={`gym-${gym._id}`}
+                                    value={gym._id}
+                                    onChange={() => handleGymSelection(gym._id)}
+                                    checked={selectedGyms.includes(gym._id)}
+                                />
+                                <label htmlFor={`gym-${gym._id}`}>{gym.name} - {gym.location}</label>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Submit Button */}
+                <button type="submit">Save Preferences</button>
+            </form>
         </div>
-
-        {/* Preferred Styles */}
-        <div>
-          <label htmlFor="preferredStyles">Preferred Styles (comma-separated):</label>
-          <input
-            type="text"
-            id="preferredStyles"
-            value={preferredStyles}
-            onChange={(e) => setPreferredStyles(e.target.value)}
-            placeholder="e.g., Boxing, Muay Thai"
-            required
-          />
-        </div>
-
-        {/* Gyms */}
-        <div>
-          <label>Gyms:</label>
-          <div>
-            {gymsList.map(gym => (
-              <div key={gym._id}>
-                <input
-                  type="checkbox"
-                  id={`gym-${gym._id}`}
-                  value={gym._id}
-                  onChange={handleGymSelection}
-                />
-                <label htmlFor={`gym-${gym._id}`}>{gym.name} - {gym.location}</label>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Submit Button */}
-        <button type="submit">Save Preferences</button>
-
-        {/* Error Message */}
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-      </form>
-    </div>
-  );
+    );
 };
 
 export default Preferences;
