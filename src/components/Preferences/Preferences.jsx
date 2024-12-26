@@ -8,7 +8,6 @@ const Preferences = () => {
   const { user } = useContext(UserContext);
 
   const [skillLevel, setSkillLevel] = useState('');
-  const [preferredStyles, setPreferredStyles] = useState('');
   const [selectedGyms, setSelectedGyms] = useState([]);
   const [gymsList, setGymsList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -54,7 +53,6 @@ const Preferences = () => {
     const profileData = {
       user: user._id,
       skillLevel,
-      preferredStyles: preferredStyles.split(',').map((style) => style.trim()),
       gyms: selectedGyms,
     };
 
@@ -91,19 +89,6 @@ const Preferences = () => {
             <option value="intermediate">Intermediate</option>
             <option value="advanced">Advanced</option>
           </select>
-        </div>
-
-        {/* Preferred Styles Input */}
-        <div>
-          <label htmlFor="preferredStyles">Preferred Styles:</label>
-          <input
-            type="text"
-            id="preferredStyles"
-            value={preferredStyles}
-            onChange={(e) => setPreferredStyles(e.target.value)}
-            placeholder="e.g., Boxing, Muay Thai"
-            required
-          />
         </div>
 
         {/* Gyms Selection */}
