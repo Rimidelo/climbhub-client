@@ -47,27 +47,27 @@ export const createProfile = async (profileData) => {
 };
 
 // -------------------
-// New: Video Upload using fetch
+// Videos
 // -------------------
 export const uploadVideo = async (formData) => {
-    // We use fetch here instead of axios
     try {
-        const response = await fetch(`${API_URL}/video`, {
-            method: 'POST',
-            body: formData, // formData includes the file + other fields
-        });
-
-        // Parse the JSON response
-        const data = await response.json();
-
-        // If the response is not OK (e.g., status 400 or 500), throw an error
-        if (!response.ok) {
-            throw new Error(data.error || 'Error uploading video');
-        }
-
-        return data; // Return the successful upload response
+      const response = await axios.post(`${API_URL}/videos`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return response.data;
     } catch (error) {
-        console.error('Error uploading video:', error);
-        throw error;
+      console.error('Error uploading video:', error);
+      throw error;
     }
-};
+  };
+  
+  export const getAllVideos = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/videos`);
+      return response.data; // returns an array of video objects
+    } catch (error) {
+      console.error('Error fetching all videos:', error);
+      throw error;
+    }
+  };
+  

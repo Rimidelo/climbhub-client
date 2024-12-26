@@ -7,7 +7,7 @@ import LoginPage from './components/Login/Login';
 import RegisterPage from './components/Register/Register';
 import Home from './components/Home/Home';
 import VideoUploder from './components/UploadVideo/UploadVideo'
-
+import VideoReels from './components/VideoReels/VideoReels'
 
 function App() {
   return (
@@ -20,6 +20,7 @@ function App() {
         <Route element={<DefaultLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/video-uplode" element={<VideoUploder />} />
+          <Route path="/reels" element={<VideoReels />} />
         </Route>
       </Routes>
     </BrowserRouter>

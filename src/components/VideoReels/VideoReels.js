@@ -1,83 +1,97 @@
-import React, { useEffect, useState } from 'react';
-import { getAllVideos } from '../api'; // <--- the function you just wrote
+// VideoReels.js
+import React, { useState, useEffect } from 'react';
+import { getAllVideos } from '../../API/api'; 
+import {
+  Box,
+  Card,
+  CardMedia,
+  CardContent,
+  Typography,
+} from '@mui/material';
 
 function VideoReels() {
   const [videos, setVideos] = useState([]);
 
-  // 1) Fetch all videos on mount
+  // Fetch all videos on component mount
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const data = await getAllVideos();
-        setVideos(data);
-      } catch (err) {
-        console.error('Error fetching videos:', err);
+        const allVideos = await getAllVideos();
+        setVideos(allVideos);
+      } catch (error) {
+        console.error('Error fetching videos:', error);
       }
     };
     fetchVideos();
   }, []);
 
-  // 2) Render them in a vertical feed
   return (
-    <div style={styles.reelsContainer}>
+    <Box
+      sx={{
+        // A vertical scroll feed with full screen height
+        height: '100vh',
+        overflowY: 'auto',
+        backgroundColor: '#fafafa',
+      }}
+    >
       {videos.map((video) => (
-        <div key={video._id} style={styles.reelItem}>
-          {/* The video element */}
-          <video
+        <Card
+          key={video._id}
+          sx={{
+            position: 'relative',
+            width: '100%',
+            height: '100vh', 
+            marginBottom: '10px',
+            borderRadius: 0,
+            boxShadow: 'none',
+            // "Snap" each card if you want that effect:
+            scrollSnapAlign: 'start', 
+          }}
+        >
+          {/* Material UI can handle video as CardMedia if you specify component="video" */}
+          <CardMedia
+            component="video"
             src={video.videoUrl}
-            style={styles.video}
-            controls
-            // or autoPlay muted loop if you want a "reels" style auto-play
-            // autoPlay
-            // muted
-            // loop
+            autoPlay
+            loop
+            muted
+            sx={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+            }}
           />
 
-          {/* Info overlay or caption (description, difficulty, etc.) */}
-          <div style={styles.caption}>
-            <h3>{video.description}</h3>
-            {video.difficultyLevel && <p>Difficulty: {video.difficultyLevel}</p>}
-            <p>Uploaded by: {video.profile ? video.profile.user : 'Unknown'}</p>
-          </div>
-        </div>
+          {/* Overlay content (description, user info, etc.) */}
+          <CardContent
+            sx={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              color: '#fff',
+              width: '100%',
+              backgroundColor: 'rgba(0, 0, 0, 0.3)',
+              padding: '16px',
+            }}
+          >
+            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+              {video.description}
+            </Typography>
+            {video.difficultyLevel && (
+              <Typography variant="body1">
+                Difficulty: {video.difficultyLevel}
+              </Typography>
+            )}
+            {video.profile?.user && (
+              <Typography variant="body2">
+                Uploaded by: {video.profile.user}
+              </Typography>
+            )}
+          </CardContent>
+        </Card>
       ))}
-    </div>
+    </Box>
   );
 }
 
 export default VideoReels;
-
-// Basic inline styles for a "Reels-like" vertical feed
-const styles = {
-  reelsContainer: {
-    // We'll use vertical scrolling with 100vh items
-    height: '100vh',
-    overflowY: 'scroll',
-    scrollSnapType: 'y mandatory', // ensures each item snaps into viewport if your browser supports it
-  },
-  reelItem: {
-    position: 'relative',
-    width: '100%',
-    height: '100vh',
-    scrollSnapAlign: 'start', // each item snaps at the start of the container
-    backgroundColor: '#000',   // background to ensure nice black behind the video
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  video: {
-    maxHeight: '100%',
-    maxWidth: '100%',
-    objectFit: 'cover',
-  },
-  caption: {
-    position: 'absolute',
-    bottom: '10px',
-    left: '10px',
-    color: '#fff',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    padding: '8px 12px',
-    borderRadius: '4px',
-  },
-};
