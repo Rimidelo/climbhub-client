@@ -26,7 +26,7 @@ const Feed = () => {
     const { user } = useContext(UserContext);
     const [videos, setVideos] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [,setLikeLoading] = useState({});
+    const [, setLikeLoading] = useState({});
     const [error, setError] = useState('');
     const isSmallScreen = useMediaQuery('(max-width:600px)');
 
@@ -61,7 +61,7 @@ const Feed = () => {
             setError('User not logged in');
             return;
         }
-    
+
         setLikeLoading((prev) => ({ ...prev, [videoId]: true }));
         try {
             await toggleLike(videoId, user._id); // Removed the unused `response` variable
@@ -79,7 +79,7 @@ const Feed = () => {
             setLikeLoading((prev) => ({ ...prev, [videoId]: false }));
         }
     };
-    
+
 
 
     if (loading) {
@@ -129,6 +129,8 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
     const [comments, setComments] = useState(preloadedComments || []); // Use preloaded comments
     const [addingComment, setAddingComment] = useState(false);
     const [showAddComment, setShowAddComment] = useState(false); // Toggle for "Add a comment"
+    const [showAllComments, setShowAllComments] = useState(false); // Toggle for "View all comments"
+
 
     const handleAddComment = async () => {
         if (commentText.trim() === '') return;
@@ -221,12 +223,12 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
 
             {/* Comments Section */}
             <Box sx={{ px: 2 }}>
-                {comments.slice(0, 2).map((comment) => (
+                {(showAllComments ? comments : comments.slice(0, 2)).map((comment) => (
                     <Box
                         key={comment._id}
                         sx={{
                             display: 'flex',
-                            alignItems: 'center', // Change 'flex-start' to 'center' for vertical alignment
+                            alignItems: 'center',
                             mb: 2,
                         }}
                     >
@@ -242,11 +244,17 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
                     </Box>
                 ))}
                 {comments.length > 2 && (
-                    <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-                        View all {comments.length} comments
+                    <Typography
+                        variant="body2"
+                        color="primary"
+                        sx={{ mt: 1,mb:1, cursor: 'pointer' }}
+                        onClick={() => setShowAllComments((prev) => !prev)}
+                    >
+                        {showAllComments ? 'Hide comments' : `View all ${comments.length} comments`}
                     </Typography>
                 )}
             </Box>
+
 
 
             {/* Add Comment Section - Toggle Visibility */}
