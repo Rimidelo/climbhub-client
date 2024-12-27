@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useContext } from 'react';
 import { getAllVideos, toggleLike, addComment, getComments } from '../../API/api';
+import { useMediaQuery } from '@mui/material';
 import { UserContext } from '../../contexts/UserContext';
 import {
     Box,
@@ -12,31 +13,23 @@ import {
     TextField,
     Button,
     Avatar,
-    List,
-    ListItem,
-    ListItemAvatar,
-    ListItemText,
-    Collapse,
     CircularProgress,
 } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
 
 const Feed = () => {
     const { user } = useContext(UserContext);
-    console.log(user);
-    
     const [videos, setVideos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [likeLoading, setLikeLoading] = useState({});
     const [commentLoading, setCommentLoading] = useState({});
     const [error, setError] = useState('');
+    const isSmallScreen = useMediaQuery('(max-width:600px)');
 
     useEffect(() => {
         const fetchVideos = async () => {
@@ -112,7 +105,7 @@ const Feed = () => {
             )}
             <Grid container spacing={2} direction="column" >
                 {videos.map((video) => (
-                    <Grid item xs={12} key={video._id} sx={{ width: '50%', maxWidth: '600px' }}>
+                    <Grid item xs={12} key={video._id} sx={{ width: isSmallScreen ? '100%' : '50%', maxWidth: '600px' }}>
                         <VideoCard
                             video={video}
                             handleLike={handleLike}
