@@ -25,9 +25,13 @@ import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+dayjs.extend(relativeTime);
 
 const Feed = () => {
     const { user } = useContext(UserContext);
+    console.log(user);
+    
     const [videos, setVideos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [likeLoading, setLikeLoading] = useState({});
@@ -160,13 +164,14 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
                 <Avatar sx={{ mr: 2 }}>
                     {video.profile?.user?.name?.charAt(0).toUpperCase()}
                 </Avatar>
-                <Box>
-                    <Typography variant="subtitle2">{video.profile?.user?.name}</Typography>
-                    <Typography variant="caption" color="textSecondary">
-                        {dayjs(video.createdAt).format('MMMM D, YYYY h:mm A')}
-                    </Typography>
-                </Box>
+                <Typography variant="subtitle2" sx={{ mr: 2 }}>
+                    {video.profile?.user?.name}
+                </Typography>
+                <Typography variant="caption" color="textSecondary">
+                    {dayjs(video.createdAt).fromNow()}
+                </Typography>
             </Box>
+
 
             {/* Media Section: Video */}
             <Box sx={{ position: 'relative', pb: '140%', bgcolor: 'black' }}>
