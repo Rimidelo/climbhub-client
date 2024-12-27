@@ -18,6 +18,7 @@ function MobileNav() {
         left: 0,
         right: 0,
         display: { xs: 'block', md: 'none' }, // Show only on mobile
+        zIndex: 1300,
       }}
       elevation={3}
     >
