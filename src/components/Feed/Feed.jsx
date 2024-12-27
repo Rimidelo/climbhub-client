@@ -26,8 +26,7 @@ const Feed = () => {
     const { user } = useContext(UserContext);
     const [videos, setVideos] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [likeLoading, setLikeLoading] = useState({});
-    const [commentLoading, setCommentLoading] = useState({});
+    const [,setLikeLoading] = useState({});
     const [error, setError] = useState('');
     const isSmallScreen = useMediaQuery('(max-width:600px)');
 
@@ -62,10 +61,10 @@ const Feed = () => {
             setError('User not logged in');
             return;
         }
-
+    
         setLikeLoading((prev) => ({ ...prev, [videoId]: true }));
         try {
-            const response = await toggleLike(videoId, user._id); // Pass user._id to toggleLike
+            await toggleLike(videoId, user._id); // Removed the unused `response` variable
             setVideos((prevVideos) =>
                 prevVideos.map((video) =>
                     video._id === videoId ? { ...video, likes: video.likes } : video
@@ -80,6 +79,7 @@ const Feed = () => {
             setLikeLoading((prev) => ({ ...prev, [videoId]: false }));
         }
     };
+    
 
 
     if (loading) {
