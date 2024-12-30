@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { BottomNavigation, BottomNavigationAction, Paper } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
-import SearchIcon from '@mui/icons-material/Search';
 import PersonIcon from '@mui/icons-material/Person';
+import VideoCallIcon from '@mui/icons-material/VideoCall';  // <-- For upload icon
 import { useNavigate } from 'react-router-dom';
-// import other icons as needed
 
 function MobileNav() {
   const [value, setValue] = useState(0);
@@ -26,11 +25,29 @@ function MobileNav() {
         value={value}
         onChange={(event, newValue) => {
           setValue(newValue);
-          // possibly handle routing here with React Router
+          switch (newValue) {
+            case 0:
+              navigate('/');
+              break;
+            case 1:
+              navigate('/video-uplode');
+              break;
+            case 2:
+              // Add your own profile route or logic here
+              navigate('/profile');
+              break;
+            default:
+              break;
+          }
         }}
       >
-        <BottomNavigationAction onClick={() => navigate('/')} label="Home" icon={<HomeIcon />} />
-        <BottomNavigationAction label="Search" icon={<SearchIcon />} />
+        {/* Home */}
+        <BottomNavigationAction label="Home" icon={<HomeIcon />} />
+
+        {/* Upload Video (replacing Search) */}
+        <BottomNavigationAction label="Upload" icon={<VideoCallIcon />} />
+
+        {/* Profile */}
         <BottomNavigationAction label="Profile" icon={<PersonIcon />} />
       </BottomNavigation>
     </Paper>

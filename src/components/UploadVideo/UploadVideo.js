@@ -66,7 +66,6 @@ const UploadVideo = () => {
 
       try {
         console.log(user._id);
-        
         const profile = await getUserProfile(user._id);
         if (profile && profile._id) {
           setProfileId(profile._id);

@@ -5,7 +5,7 @@ import DefaultLayout from './components/Layout/DefaultLayout';
 import { UserProvider } from './contexts/UserContext';
 import LoginPage from './components/Login/Login';
 import RegisterPage from './components/Register/Register';
-import Home from './components/Home/Home';
+// import Home from './components/Home/Home';
 import VideoUploder from './components/UploadVideo/UploadVideo'
 import VideoReels from './components/VideoReels/VideoReels'
 import Preferences from './components/Preferences/Preferences'
