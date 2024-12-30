@@ -61,7 +61,7 @@ function DesktopNav() {
                     
                     {/* Upload Video */}
                     <ListItem disablePadding>
-                        <ListItemButton onClick={() => navigate('/video-uplode')}>
+                        <ListItemButton onClick={() => navigate('/video-upload')}>
                             <ListItemIcon>
                                 <VideoCallIcon />
                             </ListItemIcon>

@@ -30,7 +30,7 @@ function MobileNav() {
               navigate('/');
               break;
             case 1:
-              navigate('/video-uplode');
+              navigate('/video-upload');
               break;
             case 2:
               // Add your own profile route or logic here

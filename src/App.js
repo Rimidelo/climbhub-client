@@ -22,7 +22,7 @@ function App() {
           </Route>
           <Route element={<DefaultLayout />}>
             <Route path="/" element={<Feed />} />
-            <Route path="/video-uplode" element={<VideoUploder />} />
+            <Route path="/video-upload" element={<VideoUploder />} />
             <Route path="/reels" element={<VideoReels />} />
             <Route path="/preferences" element={<Preferences />} />
           </Route>
