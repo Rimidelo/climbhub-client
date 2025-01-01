@@ -131,6 +131,19 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
     const [showAddComment, setShowAddComment] = useState(false); // Toggle for "Add a comment"
     const [showAllComments, setShowAllComments] = useState(false); // Toggle for "View all comments"
 
+    const colorGradingMap = {
+        "Pink": "#FFC0CB",
+        "Green": "#008000",
+        "Yellow": "#FFFF00",
+        "Red": "#FF0000",
+        "Blue": "#0000FF",
+        "White": "#FFFFFF",
+        "Orange": "#FFA500",
+        "Light Green": "#90EE90",
+        "Black": "#000000"
+        // Add other colors as needed
+    };
+
 
     const handleAddComment = async () => {
         if (commentText.trim() === '') return;
@@ -154,17 +167,37 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
 
     return (
         <Paper elevation={3} sx={{ mb: 3, borderRadius: 2, overflow: 'hidden' }}>
+
+
             {/* Top Section: User Info */}
-            <Box sx={{ display: 'flex', alignItems: 'center', p: 2, bgcolor: 'background.paper' }}>
-                <Avatar sx={{ mr: 2 }}>
-                    {video.profile?.user?.name?.charAt(0).toUpperCase()}
-                </Avatar>
-                <Typography variant="subtitle2" sx={{ mr: 2 }}>
-                    {video.profile?.user?.name}
-                </Typography>
-                <Typography variant="caption" color="textSecondary">
-                    {dayjs(video.createdAt).fromNow()}
-                </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', p: 2, bgcolor: 'background.paper', justifyContent: 'space-between' }}>
+                {/* User Info */}
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Avatar sx={{ mr: 2 }}>
+                        {video.profile?.user?.name?.charAt(0).toUpperCase()}
+                    </Avatar>
+                    <Typography variant="subtitle2" sx={{ mr: 2 }}>
+                        {video.profile?.user?.name}
+                    </Typography>
+                    <Typography variant="caption" color="textSecondary">
+                        {dayjs(video.createdAt).fromNow()}
+                    </Typography>
+                </Box>
+
+                {/* Grading Display */}
+                {video.gradingSystem === "Japanese-Colored" && colorGradingMap[video.difficultyLevel] ? (
+                    <Box
+                        sx={{
+                            width: 20,
+                            height: 40,
+                            backgroundColor: colorGradingMap[video.difficultyLevel], // Use mapped color
+                        }}
+                    />
+                ) : (
+                    <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                        {video.difficultyLevel} {/* Display V grading or fallback */}
+                    </Typography>
+                )}
             </Box>
 
 
@@ -247,7 +280,7 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
                     <Typography
                         variant="body2"
                         color="primary"
-                        sx={{ mt: 1,mb:1, cursor: 'pointer' }}
+                        sx={{ mt: 1, mb: 1, cursor: 'pointer' }}
                         onClick={() => setShowAllComments((prev) => !prev)}
                     >
                         {showAllComments ? 'Hide comments' : `View all ${comments.length} comments`}
