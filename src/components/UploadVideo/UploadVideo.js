@@ -1,5 +1,3 @@
-// src/components/UploadVideo/UploadVideo.jsx
-
 import React, { useState, useEffect, useContext } from 'react';
 import { getGyms, uploadVideo, getUserProfile } from '../../API/api'; // Import getUserProfile
 import { useNavigate } from 'react-router-dom';
@@ -26,6 +24,7 @@ const UploadVideo = () => {
 
   const [gyms, setGyms] = useState([]);
   const [description, setDescription] = useState('');
+  const [gradingSystem, setGradingSystem] = useState(''); // New field for grading system
   const [difficultyLevel, setDifficultyLevel] = useState('');
   const [gymId, setGymId] = useState('');
   const [profileId, setProfileId] = useState('');
@@ -65,7 +64,6 @@ const UploadVideo = () => {
       }
 
       try {
-        console.log(user._id);
         const profile = await getUserProfile(user._id);
         if (profile && profile._id) {
           setProfileId(profile._id);
@@ -104,6 +102,11 @@ const UploadVideo = () => {
       return;
     }
 
+    if (!gradingSystem) {
+      setError('Please select a grading system.');
+      return;
+    }
+
     if (!difficultyLevel) {
       setError('Please select a difficulty level.');
       return;
@@ -127,6 +130,7 @@ const UploadVideo = () => {
       // Use FormData to handle file and other fields
       const formData = new FormData();
       formData.append('description', description);
+      formData.append('gradingSystem', gradingSystem); // Include grading system
       formData.append('difficultyLevel', difficultyLevel);
       formData.append('gym', gymId);
       formData.append('profile', profileId);
@@ -140,6 +144,7 @@ const UploadVideo = () => {
 
       // Optionally reset the form
       setDescription('');
+      setGradingSystem('');
       setDifficultyLevel('');
       setGymId('');
       setVideoFile(null);
@@ -154,6 +159,21 @@ const UploadVideo = () => {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const difficultyOptions = {
+    'V-Grading': ['V0', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10'],
+    'Japanese-Colored': [
+      { value: 'Pink', color: '#FFC0CB' },
+      { value: 'Green', color: '#008000' },
+      { value: 'Yellow', color: '#FFFF00' },
+      { value: 'Red', color: '#FF0000' },
+      { value: 'Blue', color: '#0000FF' },
+      { value: 'White', color: '#FFFFFF' },
+      { value: 'Orange', color: '#FFA500' },
+      { value: 'Light Green', color: '#90EE90' },
+      { value: 'Black', color: '#000000' },
+    ],
   };
 
   if (loadingGyms || loadingProfile) {
@@ -220,6 +240,27 @@ const UploadVideo = () => {
               </FormControl>
             </Grid>
 
+            {/* Grading System Selection */}
+            <Grid item xs={12}>
+              <FormControl fullWidth required>
+                <InputLabel id="grading-system-label">Grading System</InputLabel>
+                <Select
+                  labelId="grading-system-label"
+                  id="gradingSystem"
+                  value={gradingSystem}
+                  label="Grading System"
+                  onChange={(e) => {
+                    setGradingSystem(e.target.value);
+                    setDifficultyLevel(''); // Reset difficulty level on grading system change
+                  }}
+                  required
+                >
+                  <MenuItem value="V-Grading">V-Grading</MenuItem>
+                  <MenuItem value="Japanese-Colored">Japanese-Colored</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+
             {/* Difficulty Level Selection */}
             <Grid item xs={12}>
               <FormControl fullWidth required>
@@ -232,9 +273,33 @@ const UploadVideo = () => {
                   onChange={(e) => setDifficultyLevel(e.target.value)}
                   required
                 >
-                  <MenuItem value="Beginner">Beginner</MenuItem>
-                  <MenuItem value="Intermediate">Intermediate</MenuItem>
-                  <MenuItem value="Expert">Expert</MenuItem>
+                  {gradingSystem === 'V-Grading' &&
+                    difficultyOptions['V-Grading'].map((level) => (
+                      <MenuItem key={level} value={level}>
+                        {level}
+                      </MenuItem>
+                    ))}
+                  {gradingSystem === 'Japanese-Colored' &&
+                    difficultyOptions['Japanese-Colored'].map((level) => (
+                      <MenuItem key={level.value} value={level.value}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1,
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              width: 20, // Vertical rectangle width
+                              height: 40, // Vertical rectangle height
+                              backgroundColor: level.color,
+                            }}
+                          />
+                          {level.value}
+                        </Box>
+                      </MenuItem>
+                    ))}
                 </Select>
               </FormControl>
             </Grid>
