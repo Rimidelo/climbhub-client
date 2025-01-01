@@ -8,7 +8,7 @@ import {
     Box,
     Typography,
     Paper,
-    Grid,
+    Grid2,
     IconButton,
     TextField,
     Button,
@@ -29,6 +29,8 @@ const Feed = () => {
     const [, setLikeLoading] = useState({});
     const [error, setError] = useState('');
     const isSmallScreen = useMediaQuery('(max-width:600px)');
+    const drawerWidth = 240; // Adjust width to taste
+
 
     useEffect(() => {
         const fetchVideos = async () => {
@@ -97,26 +99,45 @@ const Feed = () => {
     }
 
     return (
-        <Box sx={{ padding: 2 }}>
-            {error && (
-                <Typography color="error" variant="body1" align="center" gutterBottom>
-                    {error}
-                </Typography>
-            )}
-            <Grid container spacing={2} direction="column" >
-                {videos.map((video) => (
-                    <Grid item xs={12} key={video._id} sx={{ width: isSmallScreen ? '100%' : '50%', maxWidth: '600px' }}>
-                        <VideoCard
-                            video={video}
-                            handleLike={handleLike}
-                            setError={setError}
-                            preloadedComments={video.comments} // Pass preloaded comments
-                        />
-                    </Grid>
-                ))}
-            </Grid>
 
-
+        <Box
+            sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                marginLeft: { xs: 0, md: `-${drawerWidth }px` },
+            }}
+        >
+            <Box sx={{ maxWidth: '500px', width: '100%' }}>
+                {error && (
+                    <Typography color="error" variant="body1" align="center" gutterBottom>
+                        {error}
+                    </Typography>
+                )}
+                <Grid2
+                    container
+                    spacing={2}
+                    
+                >
+                    {videos.map((video) => (
+                        <Grid2
+                            xs={12} // Ensure each item takes up the full row
+                            key={video._id}
+                            sx={{
+                                width: '100%', // Ensure the card takes full width of the container
+                                maxWidth: '600px', // Enforce a consistent maximum width
+                                margin: '0 auto', // Center each video card
+                            }}
+                        >
+                            <VideoCard
+                                video={video}
+                                handleLike={handleLike}
+                                setError={setError}
+                                preloadedComments={video.comments} // Pass preloaded comments
+                            />
+                        </Grid2>
+                    ))}
+                </Grid2>
+            </Box>
         </Box>
     );
 };
