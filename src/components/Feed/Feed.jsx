@@ -1,6 +1,6 @@
 // src/components/Feed/Feed.jsx
 
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { getAllVideos, toggleLike, addComment, getComments } from '../../API/api';
 import { useMediaQuery } from '@mui/material';
 import { UserContext } from '../../contexts/UserContext';
@@ -107,7 +107,7 @@ const Feed = () => {
                 marginLeft: { xs: 0, md: `-${drawerWidth }px` },
             }}
         >
-            <Box sx={{ maxWidth: '500px', width: '100%' }}>
+            <Box sx={{ maxWidth: '400px', width: '100%' }}>
                 {error && (
                     <Typography color="error" variant="body1" align="center" gutterBottom>
                         {error}
@@ -151,6 +151,7 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
     const [addingComment, setAddingComment] = useState(false);
     const [showAddComment, setShowAddComment] = useState(false); // Toggle for "Add a comment"
     const [showAllComments, setShowAllComments] = useState(false); // Toggle for "View all comments"
+    const videoRef = useRef(null);
 
     const colorGradingMap = {
         "Pink": "#FFC0CB",
@@ -165,6 +166,34 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
         // Add other colors as needed
     };
 
+    // Intersection Observer Logic
+    useEffect(() => {
+        const handleIntersection = (entries) => {
+            entries.forEach((entry) => {
+                if (videoRef.current) {
+                    if (entry.isIntersecting) {
+                        videoRef.current.play();
+                    } else {
+                        videoRef.current.pause();
+                    }
+                }
+            });
+        };
+
+        const observer = new IntersectionObserver(handleIntersection, {
+            threshold: 0.5, // Play the video when 50% of it is visible
+        });
+
+        if (videoRef.current) {
+            observer.observe(videoRef.current);
+        }
+
+        return () => {
+            if (videoRef.current) {
+                observer.unobserve(videoRef.current);
+            }
+        };
+    }, []);
 
     const handleAddComment = async () => {
         if (commentText.trim() === '') return;
@@ -188,11 +217,8 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
 
     return (
         <Paper elevation={3} sx={{ mb: 3, borderRadius: 2, overflow: 'hidden' }}>
-
-
             {/* Top Section: User Info */}
             <Box sx={{ display: 'flex', alignItems: 'center', p: 2, bgcolor: 'background.paper', justifyContent: 'space-between' }}>
-                {/* User Info */}
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <Avatar sx={{ mr: 2 }}>
                         {video.profile?.user?.name?.charAt(0).toUpperCase()}
@@ -204,29 +230,28 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
                         {dayjs(video.createdAt).fromNow()}
                     </Typography>
                 </Box>
-
-                {/* Grading Display */}
                 {video.gradingSystem === "Japanese-Colored" && colorGradingMap[video.difficultyLevel] ? (
                     <Box
                         sx={{
                             width: 20,
                             height: 40,
-                            backgroundColor: colorGradingMap[video.difficultyLevel], // Use mapped color
+                            backgroundColor: colorGradingMap[video.difficultyLevel],
                         }}
                     />
                 ) : (
                     <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                        {video.difficultyLevel} {/* Display V grading or fallback */}
+                        {video.difficultyLevel}
                     </Typography>
                 )}
             </Box>
 
-
             {/* Media Section: Video */}
             <Box sx={{ position: 'relative', pb: '140%', bgcolor: 'black' }}>
                 <video
+                    ref={videoRef}
                     src={video.videoUrl}
                     controls
+                    muted
                     style={{
                         position: 'absolute',
                         top: 0,
@@ -245,7 +270,6 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
                         setIsLiked((prev) => !prev); // Optimistic toggle
                         setLikesCount((prev) => (isLiked ? prev - 1 : prev + 1)); // Adjust likes count
                         handleLike(video._id).catch(() => {
-                            // Revert optimistic update on error
                             setIsLiked((prev) => !prev);
                             setLikesCount((prev) => (isLiked ? prev + 1 : prev - 1));
                         });
@@ -253,12 +277,11 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
                 >
                     {isLiked ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
                 </IconButton>
-
                 <Typography variant="body2" sx={{ mr: 2 }}>
                     {likesCount} likes
                 </Typography>
                 <IconButton
-                    onClick={() => setShowAddComment((prev) => !prev)} // Toggle visibility
+                    onClick={() => setShowAddComment((prev) => !prev)}
                     sx={{ ml: 'auto' }}
                 >
                     <ChatBubbleOutlineIcon />
