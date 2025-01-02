@@ -1,19 +1,64 @@
 // src/components/VideoPopup/VideoPopup.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, IconButton, Typography, Avatar, TextField, Button } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
-import dayjs from 'dayjs';
+import { addComment, toggleLike, getComments } from '../../API/api';
 
-const VideoPopup = ({ open, onClose, video, handleLike, setError }) => {
-    if (!open || !video) return null;
+const VideoPopup = ({ open, onClose, video, user }) => {
+    const [isLiked, setIsLiked] = useState(false);
+    const [likesCount, setLikesCount] = useState(0);
+    const [comments, setComments] = useState([]);
+    const [commentText, setCommentText] = useState('');
+    const [loadingComments, setLoadingComments] = useState(true);
 
-    const isLiked = video.likes.includes(video.userId); // Replace with actual user logic
-    const handleAddComment = () => {
-        // Logic to handle adding a comment
+    useEffect(() => {
+        if (open && video) {
+            setIsLiked(video.likes?.includes(user?._id) || false);
+            setLikesCount(video.likes?.length || 0);
+
+            const fetchComments = async () => {
+                try {
+                    const fetchedComments = await getComments(video._id);
+                    setComments(fetchedComments);
+                } catch (error) {
+                    console.error('Error fetching comments:', error);
+                } finally {
+                    setLoadingComments(false);
+                }
+            };
+
+            fetchComments();
+        }
+    }, [open, video, user]);
+
+    const handleLike = async () => {
+        if (!video) return;
+
+        try {
+            await toggleLike(video._id, user._id);
+            setIsLiked((prev) => !prev);
+            setLikesCount((prev) => (isLiked ? prev - 1 : prev + 1));
+        } catch (error) {
+            console.error('Error toggling like:', error);
+        }
     };
+
+    const handleAddComment = async () => {
+        if (!video || !commentText.trim()) return;
+
+        try {
+            const newComment = await addComment(video._id, commentText.trim(), user._id);
+            setComments((prev) => [...prev, newComment]);
+            setCommentText('');
+        } catch (error) {
+            console.error('Error adding comment:', error);
+        }
+    };
+
+    if (!open || !video) return null;
 
     return (
         <Box
@@ -115,28 +160,34 @@ const VideoPopup = ({ open, onClose, video, handleLike, setError }) => {
                             marginBottom: '16px',
                         }}
                     >
-                        {video.comments.map((comment, index) => (
-                            <Box
-                                key={index}
-                                sx={{
-                                    display: 'flex',
-                                    alignItems: 'flex-start',
-                                    marginBottom: '12px',
-                                }}
-                            >
-                                <Avatar
-                                    src={comment.profile?.profilePicture}
-                                    alt={comment.profile?.user?.name}
-                                    sx={{ width: 32, height: 32, marginRight: '8px' }}
-                                />
-                                <Box>
-                                    <Typography variant="body2" fontWeight="bold">
-                                        {comment.profile?.user?.name}
-                                    </Typography>
-                                    <Typography variant="body2">{comment.text}</Typography>
+                        {loadingComments ? (
+                            <Typography>Loading comments...</Typography>
+                        ) : comments.length > 0 ? (
+                            comments.map((comment, index) => (
+                                <Box
+                                    key={index}
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'flex-start',
+                                        marginBottom: '12px',
+                                    }}
+                                >
+                                    <Avatar
+                                        src={comment.profile?.profilePicture}
+                                        alt={comment.profile?.user?.name}
+                                        sx={{ width: 32, height: 32, marginRight: '8px' }}
+                                    />
+                                    <Box>
+                                        <Typography variant="body2" fontWeight="bold">
+                                            {comment.profile?.user?.name}
+                                        </Typography>
+                                        <Typography variant="body2">{comment.text}</Typography>
+                                    </Box>
                                 </Box>
-                            </Box>
-                        ))}
+                            ))
+                        ) : (
+                            <Typography>No comments yet.</Typography>
+                        )}
                     </Box>
 
                     {/* Actions and Likes */}
@@ -148,7 +199,7 @@ const VideoPopup = ({ open, onClose, video, handleLike, setError }) => {
                         }}
                     >
                         <IconButton
-                            onClick={() => handleLike(video._id)}
+                            onClick={handleLike}
                             sx={{ marginRight: '8px' }}
                         >
                             {isLiked ? (
@@ -157,7 +208,7 @@ const VideoPopup = ({ open, onClose, video, handleLike, setError }) => {
                                 <FavoriteBorderIcon />
                             )}
                         </IconButton>
-                        <Typography variant="body2">{video.likes.length} likes</Typography>
+                        <Typography variant="body2">{likesCount} likes</Typography>
                         <IconButton sx={{ marginLeft: 'auto' }}>
                             <ChatBubbleOutlineIcon />
                         </IconButton>
@@ -177,6 +228,8 @@ const VideoPopup = ({ open, onClose, video, handleLike, setError }) => {
                             fullWidth
                             size="small"
                             variant="outlined"
+                            value={commentText}
+                            onChange={(e) => setCommentText(e.target.value)}
                             sx={{ marginRight: '8px' }}
                         />
                         <Button

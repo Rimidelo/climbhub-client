@@ -34,7 +34,8 @@ const Feed = () => {
         const fetchVideos = async () => {
             try {
                 const data = await getAllVideos();
-
+                console.log(data);
+                
                 // Fetch comments for each video
                 const videosWithComments = await Promise.all(
                     data.map(async (video) => {

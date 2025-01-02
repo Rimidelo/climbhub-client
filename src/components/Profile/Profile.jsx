@@ -188,6 +188,7 @@ const Profile = () => {
                 video={selectedVideo}
                 handleLike={handleLike}
                 setError={setError}
+                user={user}
             />
         </Box>
     );
