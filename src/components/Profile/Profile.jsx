@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
-import { getUserProfile, getVideosByProfile } from '../../API/api'; // Ensure correct API calls
+import { getUserProfile, getVideosByProfile, toggleLike } from '../../API/api';
 import {
     Box,
     Typography,
@@ -10,29 +10,21 @@ import {
     Divider,
     CircularProgress,
 } from '@mui/material';
-
-const colorGradingMap = {
-    Blue: '#0000FF',
-    Red: '#FF0000',
-    Yellow: '#FFFF00',
-    Green: '#008000',
-    Black: '#000000',
-    White: '#FFFFFF',
-    Orange: '#FFA500',
-    'Light Green': '#90EE90',
-};
+import VideoPopup from '../VideoPopup/VideoPopup';
 
 const Profile = () => {
     const { user } = useContext(UserContext);
     const [profile, setProfile] = useState(null);
     const [videos, setVideos] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedVideo, setSelectedVideo] = useState(null);
+    const [error, setError] = useState('');
 
     useEffect(() => {
         const fetchProfileData = async () => {
             try {
                 const profileData = await getUserProfile(user._id); // Fetch profile data
-                const userVideos = await getVideosByProfile(profileData._id); // Fetch videos uploaded by the user
+                const userVideos = await getVideosByProfile(profileData._id); // Fetch user's videos
                 setProfile(profileData);
                 setVideos(userVideos);
             } catch (error) {
@@ -44,6 +36,22 @@ const Profile = () => {
 
         if (user) fetchProfileData();
     }, [user]);
+
+    const handleLike = async (videoId) => {
+        try {
+            await toggleLike(videoId, user._id);
+            setVideos((prevVideos) =>
+                prevVideos.map((video) =>
+                    video._id === videoId
+                        ? { ...video, likesCount: video.likesCount + 1 }
+                        : video
+                )
+            );
+        } catch (err) {
+            console.error('Error toggling like:', err);
+            setError('Failed to toggle like.');
+        }
+    };
 
     if (loading) {
         return (
@@ -87,7 +95,7 @@ const Profile = () => {
                 }}
             >
                 <Avatar
-                    src={profile.profilePicture} // Placeholder for profile picture
+                    src={profile.profilePicture}
                     alt={profile.name}
                     sx={{ width: 120, height: 120, marginRight: { xs: 0, md: 4 }, marginBottom: { xs: 2, md: 0 } }}
                 />
@@ -153,9 +161,7 @@ const Profile = () => {
                                 cursor: 'pointer',
                                 backgroundColor: '#000',
                             }}
-                            onClick={() => {
-                                console.log(`Video clicked: ${video._id}`); // Handle click
-                            }}
+                            onClick={() => setSelectedVideo(video)} // Open popup
                         >
                             <video
                                 src={video.videoUrl}
@@ -170,40 +176,19 @@ const Profile = () => {
                                 muted
                                 playsInline
                             />
-                            {/* Grading Display */}
-                            {video.gradingSystem === 'Japanese-Colored' && colorGradingMap[video.difficultyLevel] ? (
-                                <Box
-                                    sx={{
-                                        position: 'absolute',
-                                        top: 8,
-                                        right: 8,
-                                        width: 15,
-                                        height: 30,
-                                        backgroundColor: colorGradingMap[video.difficultyLevel],
-                                    }}
-                                />
-                            ) : (
-                                <Typography
-                                    variant="body2"
-                                    sx={{
-                                        position: 'absolute',
-                                        top: 8,
-                                        right: 8,
-                                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                                        color: '#fff',
-                                        padding: '4px 8px',
-                                        borderRadius: 2,
-                                        fontSize: '0.8rem',
-                                        fontWeight: 'bold',
-                                    }}
-                                >
-                                    {video.difficultyLevel}
-                                </Typography>
-                            )}
                         </Box>
                     </Grid>
                 ))}
             </Grid>
+
+            {/* Video Popup */}
+            <VideoPopup
+                open={!!selectedVideo}
+                onClose={() => setSelectedVideo(null)} // Close the popup
+                video={selectedVideo}
+                handleLike={handleLike}
+                setError={setError}
+            />
         </Box>
     );
 };

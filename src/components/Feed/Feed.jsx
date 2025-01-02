@@ -368,8 +368,5 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
         </Paper>
     );
 };
-
-
-
-
+export { VideoCard };
 export default Feed;
