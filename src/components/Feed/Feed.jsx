@@ -239,8 +239,8 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
                 {video.gradingSystem === "Japanese-Colored" && colorGradingMap[video.difficultyLevel] ? (
                     <Box
                         sx={{
-                            width: 20,
-                            height: 40,
+                            width: 40,
+                            height: 20,
                             backgroundColor: colorGradingMap[video.difficultyLevel],
                         }}
                     />
