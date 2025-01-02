@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { getAllVideos, toggleLike, addComment, getComments } from '../../API/api';
-import { useMediaQuery } from '@mui/material';
 import { UserContext } from '../../contexts/UserContext';
 import {
     Box,
@@ -28,7 +27,6 @@ const Feed = () => {
     const [loading, setLoading] = useState(true);
     const [, setLikeLoading] = useState({});
     const [error, setError] = useState('');
-    const isSmallScreen = useMediaQuery('(max-width:600px)');
     const drawerWidth = 240; // Adjust width to taste
 
 
@@ -104,7 +102,7 @@ const Feed = () => {
             sx={{
                 display: 'flex',
                 justifyContent: 'center',
-                marginLeft: { xs: 0, md: `-${drawerWidth }px` },
+                marginLeft: { xs: 0, md: `-${drawerWidth}px` },
             }}
         >
             <Box sx={{ maxWidth: '400px', width: '100%' }}>
@@ -116,7 +114,7 @@ const Feed = () => {
                 <Grid2
                     container
                     spacing={2}
-                    
+
                 >
                     {videos.map((video) => (
                         <Grid2
@@ -167,15 +165,16 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
     };
 
     // Intersection Observer Logic
+    // Intersection Observer Logic
     useEffect(() => {
+        const videoElement = videoRef.current; // Store the current ref value in a variable
+
         const handleIntersection = (entries) => {
             entries.forEach((entry) => {
-                if (videoRef.current) {
-                    if (entry.isIntersecting) {
-                        videoRef.current.play();
-                    } else {
-                        videoRef.current.pause();
-                    }
+                if (entry.isIntersecting) {
+                    videoElement?.play();
+                } else {
+                    videoElement?.pause();
                 }
             });
         };
@@ -184,16 +183,17 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
             threshold: 0.5, // Play the video when 50% of it is visible
         });
 
-        if (videoRef.current) {
-            observer.observe(videoRef.current);
+        if (videoElement) {
+            observer.observe(videoElement);
         }
 
         return () => {
-            if (videoRef.current) {
-                observer.unobserve(videoRef.current);
+            if (videoElement) {
+                observer.unobserve(videoElement);
             }
         };
     }, []);
+
 
     const handleAddComment = async () => {
         if (commentText.trim() === '') return;
