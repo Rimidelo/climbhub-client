@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
-import { getUserProfile, getVideosByProfile, toggleLike } from '../../API/api';
+import { getUserProfile, getVideosByProfile, toggleLike, uploadProfileImage } from '../../API/api';
 import {
     Box,
     Typography,
@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import VideoPopup from '../VideoPopup/VideoPopup';
+import EditIcon from '@mui/icons-material/Edit';
 
 const Profile = () => {
     const { user, handleLogout } = useContext(UserContext);
@@ -24,6 +25,7 @@ const Profile = () => {
     const [selectedVideo, setSelectedVideo] = useState(null);
     const [, setError] = useState('');
     const [anchorEl, setAnchorEl] = useState(null); // State for settings menu
+    const [hovered, setHovered] = useState(false);
 
     useEffect(() => {
         const fetchProfileData = async () => {
@@ -41,6 +43,20 @@ const Profile = () => {
 
         if (user) fetchProfileData();
     }, [user]);
+
+    const handleImageUpload = async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        try {
+            await uploadProfileImage(user._id, file); // Upload the image
+            const updatedProfile = await getUserProfile(user._id); // Fetch the updated profile
+            setProfile(updatedProfile); // Update the profile state with the latest data
+        } catch (error) {
+            console.error('Error uploading profile image:', error);
+        }
+    };
+
 
     const handleLike = async (videoId) => {
         try {
@@ -96,6 +112,7 @@ const Profile = () => {
         );
     }
 
+
     return (
         <Box sx={{ padding: { xs: 2, md: 4 }, maxWidth: '1200px', margin: '0 auto' }}>
             {/* Profile Header */}
@@ -107,17 +124,54 @@ const Profile = () => {
                     flexWrap: { xs: 'wrap', md: 'nowrap' },
                 }}
             >
-                <Avatar
-                    src={profile.profilePicture}
-                    alt={profile.name}
-                    sx={{ width: 120, height: 120, marginRight: { xs: 0, md: 4 }, marginBottom: { xs: 2, md: 0 } }}
-                />
-                <Box sx={{ textAlign: { xs: 'center', md: 'left' }, flex: 1 }}>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        marginBottom: 4,
+                        position: 'relative',
+                    }}
+                    onMouseEnter={() => setHovered(true)}
+                    onMouseLeave={() => setHovered(false)}
+                >
+                    <Avatar
+                        src={`${profile?.user?.image || '/default-avatar.png'}?t=${Date.now()}`}
+                        alt={profile?.user?.name || 'Default User'}
+                        sx={{ width: 120, height: 120 }}
+                    />
+
+                    {hovered && (
+                        <Box
+                            sx={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: 120,
+                                height: 120,
+                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                borderRadius: '50%',
+                                cursor: 'pointer',
+                            }}
+                        >
+                            <IconButton
+                                component="label"
+                                sx={{ color: '#fff' }}
+                            >
+                                <EditIcon />
+                                <input type="file" hidden onChange={handleImageUpload} />
+                            </IconButton>
+                        </Box>
+                    )}
+                </Box>
+                <Box sx={{ textAlign: { xs: 'center', md: 'left' }, flex: 1, marginLeft: '1rem' }}>
                     <Typography variant="h4" sx={{ fontWeight: 'bold', fontSize: { xs: '1.5rem', md: '2rem' } }}>
-                        {profile.user.name}
+                        {profile?.user?.name || 'Anonymous User'}
                     </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 2 }}>
-                        <Button variant="outlined" sx={{ fontSize: { xs: '0.8rem', md: '1rem' } }}>
+                        <Button variant="outlined" sx={{ fontSize: { xs: '0.8rem', md: '1rem' }, ml: '1rem' }}>
                             Edit Profile
                         </Button>
                         <IconButton

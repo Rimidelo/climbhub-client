@@ -126,3 +126,18 @@ export const getVideosByProfile = async (profileId) => {
     throw error;
   }
 };
+
+export const uploadProfileImage = async (userId, file) => {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  try {
+    const response = await axios.post(`${API_URL}/users/${userId}/upload-image`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error uploading profile image:', error);
+    throw error;
+  }
+};
