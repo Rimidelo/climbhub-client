@@ -39,10 +39,10 @@ const Profile = () => {
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        const profileData = await getUserProfile(user._id); // Fetch profile data
-        const userVideos = await getVideosByProfile(profileData._id); // Fetch user's videos
+        const profileData = await getUserProfile(user._id);
+        const userVideos = await getVideosByProfile(profileData._id) || []; // <-- Ensure an array
         setProfile(profileData);
-        setVideos(userVideos);
+        setVideos(userVideos); // even if no videos, this will be []
       } catch (error) {
         console.error('Error fetching profile data:', error);
       } finally {
@@ -52,6 +52,7 @@ const Profile = () => {
 
     if (user) fetchProfileData();
   }, [user]);
+
 
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
@@ -305,37 +306,45 @@ const Profile = () => {
       </Grid>
 
       {/* Video Grid */}
-      <Grid container spacing={1}>
-        {videos.map((video) => (
-          <Grid item xs={4} sm={4} md={4} key={video._id}>
-            <Box
-              sx={{
-                width: '100%',
-                position: 'relative',
-                paddingTop: '100%', // square ratio
-                overflow: 'hidden',
-                cursor: 'pointer',
-                backgroundColor: '#000',
-              }}
-              onClick={() => setSelectedVideo(video)} // Open popup
-            >
-              <video
-                src={video.videoUrl}
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
+      {videos.length > 0 ? (
+        <Grid container spacing={1}>
+          {videos.map((video) => (
+            <Grid item xs={4} sm={4} md={4} key={video._id}>
+              <Box
+                sx={{
                   width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
+                  position: 'relative',
+                  paddingTop: '100%', // square ratio
+                  overflow: 'hidden',
+                  cursor: 'pointer',
+                  backgroundColor: '#000',
                 }}
-                muted
-                playsInline
-              />
-            </Box>
-          </Grid>
-        ))}
-      </Grid>
+                onClick={() => setSelectedVideo(video)} // Open popup
+              >
+                <video
+                  src={video.videoUrl}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                  }}
+                  muted
+                  playsInline
+                />
+              </Box>
+            </Grid>
+          ))}
+        </Grid>
+      ) : (
+        <Box sx={{ textAlign: 'center', mt: 2 }}>
+          <Typography variant="body1">
+            No videos yet.
+          </Typography>
+        </Box>
+      )}
 
       {/* Video Popup */}
       <VideoPopup
