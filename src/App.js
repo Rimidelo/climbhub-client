@@ -6,7 +6,6 @@ import { UserProvider } from './contexts/UserContext';
 import LoginPage from './components/Login/Login';
 import RegisterPage from './components/Register/Register';
 import VideoUploder from './components/UploadVideo/UploadVideo';
-import VideoReels from './components/VideoReels/VideoReels';
 import Preferences from './components/Preferences/Preferences';
 import Feed from './components/Feed/Feed';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'; // Import ProtectedRoute
@@ -36,14 +35,6 @@ function App() {
               element={
                 <ProtectedRoute>
                   <VideoUploder />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/reels"
-              element={
-                <ProtectedRoute>
-                  <VideoReels />
                 </ProtectedRoute>
               }
             />
