@@ -1,6 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
-import { getUserProfile, getVideosByProfile, toggleLike, uploadProfileImage } from '../../API/api';
+import {
+  getUserProfile,
+  getVideosByProfile,
+  toggleLike,
+  uploadProfileImage,
+} from '../../API/api';
+
 import {
   Box,
   Typography,
@@ -12,7 +18,10 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  Chip,
+  Stack,
 } from '@mui/material';
+
 import SettingsIcon from '@mui/icons-material/Settings';
 import VideoPopup from '../VideoPopup/VideoPopup';
 import EditIcon from '@mui/icons-material/Edit';
@@ -112,7 +121,7 @@ const Profile = () => {
 
   return (
     <Box sx={{ maxWidth: 900, mx: 'auto', px: 2, py: 4 }}>
-      {/* Profile Header - 3 columns like Instagram */}
+      {/* Profile Header */}
       <Grid
         container
         spacing={2}
@@ -156,10 +165,7 @@ const Profile = () => {
                   cursor: 'pointer',
                 }}
               >
-                <IconButton
-                  component="label"
-                  sx={{ color: '#fff' }}
-                >
+                <IconButton component="label" sx={{ color: '#fff' }}>
                   <EditIcon />
                   <input type="file" hidden onChange={handleImageUpload} />
                 </IconButton>
@@ -228,10 +234,6 @@ const Profile = () => {
           <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
             {profile?.user?.name || 'Anonymous User'}
           </Typography>
-          {/* If you have a bio or description: */}
-          {/* <Typography variant="body2" sx={{ mb: 1 }}>
-            {profile?.bio || "A short bio here..."}
-          </Typography> */}
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Button variant="outlined" sx={{ mr: 1 }}>
               Edit Profile
@@ -250,7 +252,7 @@ const Profile = () => {
             handleLogout();
             handleMenuClose();
           }}
-          sx={{color: 'red'}}
+          sx={{ color: 'red' }}
         >
           Logout
         </MenuItem>
@@ -258,7 +260,51 @@ const Profile = () => {
 
       <Divider sx={{ my: 2 }} />
 
-      {/* Video Grid - 3 columns like Instagram (even on mobile) */}
+      {/* Additional Profile Details (Skill Level & Favorite Gyms) */}
+      <Grid container spacing={2} sx={{ mb: 4 }}>
+        <Grid item xs={12}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', md: 'row' },
+              justifyContent: 'center',
+              alignItems: { xs: 'flex-start', md: 'center' },
+              gap: 4,
+            }}
+          >
+            {/* Skill Level */}
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+                Skill Level
+              </Typography>
+              <Chip
+                label={profile.skillLevel || 'N/A'}
+                variant="outlined"
+                color="primary"
+                sx={{ fontSize: '0.9rem' }}
+              />
+            </Box>
+
+            {/* Favorite Gyms */}
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+                Favorite Gyms
+              </Typography>
+              {profile.gyms && profile.gyms.length > 0 ? (
+                <Stack direction="row" spacing={1}>
+                  {profile.gyms.map((gym) => (
+                    <Chip key={gym._id} label={gym.name} variant="outlined" />
+                  ))}
+                </Stack>
+              ) : (
+                <Typography variant="body2">No gyms specified.</Typography>
+              )}
+            </Box>
+          </Box>
+        </Grid>
+      </Grid>
+
+      {/* Video Grid */}
       <Grid container spacing={1}>
         {videos.map((video) => (
           <Grid item xs={4} sm={4} md={4} key={video._id}>
