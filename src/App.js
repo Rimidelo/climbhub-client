@@ -10,6 +10,7 @@ import Preferences from './components/Preferences/Preferences';
 import Feed from './components/Feed/Feed';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'; // Import ProtectedRoute
 import Profile from './components/Profile/Profile';
+import Reels from './components/Reels/Reels';
 
 function App() {
   return (
@@ -35,6 +36,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <VideoUploder />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/reels"
+              element={
+                <ProtectedRoute>
+                  <Reels />
                 </ProtectedRoute>
               }
             />
