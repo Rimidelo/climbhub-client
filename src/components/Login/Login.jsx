@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import logoImg from '../../assets/loginImg.png';
 import { login } from '../../API/api.js';
+import { UserContext } from '../../contexts/UserContext'; // Import UserContext
 
 import {
   Box,
@@ -14,16 +16,25 @@ import {
 function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate(); // Initialize navigate
+  const { handleLogin } = useContext(UserContext); // Get handleLogin from UserContext
 
-  const handleLogin = () => {
+  const handleLoginClick = async () => {
     console.log('Email:', email, 'Password:', password);
     try {
-      const response = login(email, password);
+      const response = await login(email, password); // Wait for the API call
       console.log('Login successful:', response);
+
+      // Assume `response.user` contains user data
+      if (response.user) {
+        handleLogin(response.user); // Update user in context
+        navigate('/'); // Navigate to the feed page
+      }
     } catch (error) {
       console.error('Login failed:', error);
+      // Handle error (e.g., show a message to the user)
+    }
   };
-};
 
   return (
     <Box
@@ -44,9 +55,9 @@ function LoginPage() {
           backgroundSize: 'contain',
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
-          marginLeft: 3, // Add margin on the left
-          borderRadius: 4, // Curved corners for the image container
-          overflow: 'hidden', // Ensures the image respects the border radius
+          marginLeft: 3,
+          borderRadius: 4,
+          overflow: 'hidden',
         }}
       />
 
@@ -61,9 +72,7 @@ function LoginPage() {
           p: { xs: 2, md: 4 },
         }}
       >
-        {/* Container that holds both the login card and the "Don't have an account?" card */}
         <Box sx={{ width: { xs: '100%', sm: 350 } }}>
-          {/* Main login box */}
           <Paper
             elevation={3}
             sx={{
@@ -71,15 +80,13 @@ function LoginPage() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              borderRadius: 4, // Add curved corners to the form box
+              borderRadius: 4,
             }}
           >
-            {/* Logo text or small logo for mobile screens (optional) */}
             <Typography variant="h4" sx={{ fontFamily: 'sans-serif', mb: 2 }}>
               ClimbHub
             </Typography>
 
-            {/* Email Field */}
             <TextField
               variant="outlined"
               label="Email"
@@ -89,7 +96,6 @@ function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
             />
 
-            {/* Password Field */}
             <TextField
               variant="outlined"
               label="Password"
@@ -100,11 +106,15 @@ function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
             />
 
-            <Button variant="contained" color="primary" fullWidth onClick={handleLogin}>
+            <Button
+              variant="contained"
+              color="primary"
+              fullWidth
+              onClick={handleLoginClick} // Use the updated function
+            >
               Log In
             </Button>
 
-            {/* (Optional) Forgot Password Link */}
             <Box sx={{ mt: 2 }}>
               <Link href="#" variant="body2" underline="hover">
                 Forgot password?
@@ -112,14 +122,13 @@ function LoginPage() {
             </Box>
           </Paper>
 
-          {/* "Don’t have an account? Sign up" box */}
           <Paper
             elevation={3}
             sx={{
               mt: 2,
               p: 2,
               textAlign: 'center',
-              borderRadius: 4, // Add curved corners to the "Don’t have an account?" box
+              borderRadius: 4,
             }}
           >
             <Typography variant="body1">

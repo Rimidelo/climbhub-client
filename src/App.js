@@ -5,11 +5,11 @@ import DefaultLayout from './components/Layout/DefaultLayout';
 import { UserProvider } from './contexts/UserContext';
 import LoginPage from './components/Login/Login';
 import RegisterPage from './components/Register/Register';
-// import Home from './components/Home/Home';
-import VideoUploder from './components/UploadVideo/UploadVideo'
-import VideoReels from './components/VideoReels/VideoReels'
-import Preferences from './components/Preferences/Preferences'
+import VideoUploder from './components/UploadVideo/UploadVideo';
+import VideoReels from './components/VideoReels/VideoReels';
+import Preferences from './components/Preferences/Preferences';
 import Feed from './components/Feed/Feed';
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'; // Import ProtectedRoute
 
 function App() {
   return (
@@ -21,10 +21,39 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
           </Route>
           <Route element={<DefaultLayout />}>
-            <Route path="/" element={<Feed />} />
-            <Route path="/video-upload" element={<VideoUploder />} />
-            <Route path="/reels" element={<VideoReels />} />
-            <Route path="/preferences" element={<Preferences />} />
+            {/* Protected Routes */}
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Feed />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/video-upload"
+              element={
+                <ProtectedRoute>
+                  <VideoUploder />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/reels"
+              element={
+                <ProtectedRoute>
+                  <VideoReels />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/preferences"
+              element={
+                <ProtectedRoute>
+                  <Preferences />
+                </ProtectedRoute>
+              }
+            />
           </Route>
         </Routes>
       </BrowserRouter>
