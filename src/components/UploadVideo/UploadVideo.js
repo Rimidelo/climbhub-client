@@ -291,8 +291,8 @@ const UploadVideo = () => {
                         >
                           <Box
                             sx={{
-                              width: 20, // Vertical rectangle width
-                              height: 40, // Vertical rectangle height
+                              width: 40, 
+                              height: 20, 
                               backgroundColor: level.color,
                             }}
                           />
