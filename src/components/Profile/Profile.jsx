@@ -65,22 +65,26 @@ const Profile = () => {
     }
 
     return (
-        <Box sx={{ padding: 2, maxWidth: '800px', margin: '0 auto' }}>
+        <Box sx={{ padding: { xs: 2, md: 4 }, maxWidth: '1200px', margin: '0 auto' }}>
             {/* Profile Header */}
-            <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    marginBottom: 4,
+                    flexWrap: { xs: 'wrap', md: 'nowrap' },
+                }}
+            >
                 <Avatar
                     src={profile.profilePicture} // Placeholder for profile picture
                     alt={profile.name}
-                    sx={{ width: 80, height: 80, marginRight: 4 }}
+                    sx={{ width: 120, height: 120, marginRight: { xs: 0, md: 4 }, marginBottom: { xs: 2, md: 0 } }}
                 />
-                <Box>
-                    <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                <Box sx={{ textAlign: { xs: 'center', md: 'left' }, flex: 1 }}>
+                    <Typography variant="h4" sx={{ fontWeight: 'bold', fontSize: { xs: '1.5rem', md: '2rem' } }}>
                         {profile.user.name}
                     </Typography>
-                    <Typography variant="body1" color="textSecondary">
-                        {profile.user.email}
-                    </Typography>
-                    <Button variant="outlined" sx={{ marginTop: 2 }}>
+                    <Button variant="outlined" sx={{ marginTop: 2, fontSize: { xs: '0.8rem', md: '1rem' } }}>
                         Edit Profile
                     </Button>
                 </Box>
@@ -90,13 +94,13 @@ const Profile = () => {
             <Box
                 sx={{
                     display: 'flex',
-                    justifyContent: 'space-between',
-                    maxWidth: '400px',
-                    margin: '0 auto 16px',
+                    justifyContent: 'space-evenly',
+                    maxWidth: '600px',
+                    margin: '0 auto 24px',
                 }}
             >
                 <Box>
-                    <Typography variant="h6" align="center">
+                    <Typography variant="h5" align="center" sx={{ fontWeight: 'bold' }}>
                         {videos.length}
                     </Typography>
                     <Typography variant="body2" align="center">
@@ -104,7 +108,7 @@ const Profile = () => {
                     </Typography>
                 </Box>
                 <Box>
-                    <Typography variant="h6" align="center">
+                    <Typography variant="h5" align="center" sx={{ fontWeight: 'bold' }}>
                         {profile.followersCount || 0}
                     </Typography>
                     <Typography variant="body2" align="center">
@@ -112,7 +116,7 @@ const Profile = () => {
                     </Typography>
                 </Box>
                 <Box>
-                    <Typography variant="h6" align="center">
+                    <Typography variant="h5" align="center" sx={{ fontWeight: 'bold' }}>
                         {profile.followingCount || 0}
                     </Typography>
                     <Typography variant="body2" align="center">
@@ -124,15 +128,19 @@ const Profile = () => {
             <Divider sx={{ marginBottom: 4 }} />
 
             {/* Video Grid */}
-            <Grid container spacing={2}>
+            <Grid container spacing={2} sx={{ padding: { xs: 1, md: 2 } }}>
                 {videos.map((video) => (
-                    <Grid item xs={6} sm={4} key={video._id}>
+                    <Grid item xs={4} sm={4} md={4} key={video._id}>
                         <Box
                             sx={{
                                 width: '100%',
                                 height: '0',
                                 paddingTop: '100%', // Maintain square aspect ratio
                                 position: 'relative',
+                                borderRadius: 4,
+                                overflow: 'hidden',
+                                cursor: 'pointer',
+                                backgroundColor: '#000',
                             }}
                             onClick={() => {
                                 console.log(`Video clicked: ${video._id}`); // Handle click
