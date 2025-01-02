@@ -1,24 +1,26 @@
 import React from 'react';
-import { 
-  Drawer, 
-  Box, 
-  Typography, 
-  List, 
-  ListItem, 
-  ListItemButton, 
-  ListItemIcon, 
-  ListItemText 
+import {
+    Drawer,
+    Box,
+    Typography,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
+    Avatar
 } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import VideoCallIcon from '@mui/icons-material/VideoCall';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'; // <--- NEW ICON
 import { useNavigate } from 'react-router-dom';
+import logo from '../../assets/climbhublogo.png';
 
 const drawerWidth = 240; // Adjust width to taste
 
 function DesktopNav() {
     const navigate = useNavigate();
-    
+
     return (
         <Drawer
             variant="permanent"
@@ -27,8 +29,8 @@ function DesktopNav() {
                 width: drawerWidth,
                 flexShrink: 0,
                 [`& .MuiDrawer-paper`]: {
-                  width: drawerWidth,
-                  boxSizing: 'border-box',
+                    width: drawerWidth,
+                    boxSizing: 'border-box',
                 },
                 display: { xs: 'none', md: 'block' }, // Hide on mobile, show on md+ screens
             }}
@@ -42,11 +44,31 @@ function DesktopNav() {
                     alignItems: 'center',
                     pt: 2,
                 }}
+
+
             >
-                {/* Logo or brand name */}
-                <Typography variant="h6" sx={{ mb: 2 }}>
-                    ClimbHub
-                </Typography>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        mb: 2,
+                    }}
+                >
+                    <img
+                        src={logo} // Replace with your logo file path
+                        alt="ClimbHub Logo"
+                        style={{
+                            width: 50,
+                            height: 50,
+                            marginRight: '8px', // Add margin to the right of the logo
+                            objectFit: 'contain', // Ensures the image retains its aspect ratio
+                        }}
+                    />
+                    {/* Logo or brand name */}
+                    <Typography variant="h6">
+                        ClimbHub
+                    </Typography>
+                </Box>
 
                 {/* Navigation Items */}
                 <List sx={{ width: '100%' }}>
@@ -59,7 +81,7 @@ function DesktopNav() {
                             <ListItemText primary="Home" />
                         </ListItemButton>
                     </ListItem>
-                    
+
                     {/* Upload Video */}
                     <ListItem disablePadding>
                         <ListItemButton onClick={() => navigate('/video-upload')}>
