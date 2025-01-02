@@ -10,11 +10,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import IosShareIcon from '@mui/icons-material/IosShare';
 import { UserContext } from '../../contexts/UserContext';
-import {
-  getAllVideos,
-  getComments,
-  toggleLike,
-} from '../../API/api';
+import { getAllVideos, getComments, toggleLike } from '../../API/api';
 
 const Reels = () => {
   const { user } = useContext(UserContext);
@@ -128,6 +124,9 @@ const Reels = () => {
         height: '100vh',
         overflowY: 'auto',
         scrollSnapType: 'y mandatory',
+        '::-webkit-scrollbar': { display: 'none' }, // Hide scrollbar for Webkit browsers
+        '-ms-overflow-style': 'none', // Hide scrollbar for IE/Edge
+        'scrollbar-width': 'none', // Hide scrollbar for Firefox
       }}
     >
       {error && (
