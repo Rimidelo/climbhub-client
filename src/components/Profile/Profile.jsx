@@ -250,6 +250,7 @@ const Profile = () => {
             handleLogout();
             handleMenuClose();
           }}
+          sx={{color: 'red'}}
         >
           Logout
         </MenuItem>

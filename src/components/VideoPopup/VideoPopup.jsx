@@ -209,7 +209,7 @@ const VideoPopup = ({ open, onClose, video, user }) => {
                                     },
                                 }}
                             >
-                                <MenuItem onClick={handleDelete} sx={{ color: '#fff' }}>
+                                <MenuItem onClick={handleDelete} sx={{ color: 'red' }}>
                                     Delete
                                 </MenuItem>
                             </Menu>
