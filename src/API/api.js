@@ -107,8 +107,6 @@ export const getComments = async (videoId) => {
 // Profile
 // -------------------
 export const getUserProfile = async (userId) => {
-  console.log(userId);
-
   try {
     const response = await axios.get(`${API_URL}/profile/${userId}`);
     return response.data;
@@ -118,3 +116,13 @@ export const getUserProfile = async (userId) => {
   }
 };
 
+// Fetch videos uploaded by a specific profile
+export const getVideosByProfile = async (profileId) => {
+  try {
+    const response = await axios.get(`${API_URL}/videos/profile/${profileId}/videos`);
+    return response.data; // Returns an array of videos
+  } catch (error) {
+    console.error('Error fetching uploaded videos:', error);
+    throw error;
+  }
+};

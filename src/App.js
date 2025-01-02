@@ -10,6 +10,7 @@ import VideoReels from './components/VideoReels/VideoReels';
 import Preferences from './components/Preferences/Preferences';
 import Feed from './components/Feed/Feed';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'; // Import ProtectedRoute
+import Profile from './components/Profile/Profile';
 
 function App() {
   return (
@@ -51,6 +52,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Preferences />
+                </ProtectedRoute>
+              }
+            />
+          <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
                 </ProtectedRoute>
               }
             />
