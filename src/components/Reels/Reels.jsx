@@ -132,6 +132,7 @@ const Reels = () => {
       console.error('Error adding comment:', err);
     }
   };
+  
 
   if (loading) {
     return (
@@ -297,11 +298,16 @@ const Reels = () => {
             {selectedVideo?.comments.map((comment, i) => (
               <Box key={i} sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <Avatar
-                  src={comment.profile?.profilePicture}
+                  src={comment.profile?.user?.image}
                   alt={comment.profile?.user?.name}
                   sx={{ width: 32, height: 32, mr: 1 }}
                 />
-                <Typography variant="body2">{comment.text}</Typography>
+                <Box>
+                  <Typography variant="body2" fontWeight="bold">
+                    {comment.profile?.user?.name}
+                  </Typography>
+                  <Typography variant="body2">{comment.text}</Typography>
+                </Box>
               </Box>
             ))}
           </Box>
