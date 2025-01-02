@@ -35,7 +35,7 @@ const Feed = () => {
             try {
                 const data = await getAllVideos();
                 console.log(data);
-                
+
                 // Fetch comments for each video
                 const videosWithComments = await Promise.all(
                     data.map(async (video) => {
@@ -206,15 +206,20 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
 
         setAddingComment(true);
         try {
-            const newComment = await addComment(video._id, commentText.trim(), user._id);
-            setComments((prev) => [...prev, newComment]);
-            setCommentText('');
+            // Add the new comment to the server
+            await addComment(video._id, commentText.trim(), user._id);
+            setCommentText(''); // Clear the input field
+
+            // Re-fetch comments from the server
+            const updatedComments = await getComments(video._id);
+            setComments(updatedComments); // Update comments state
         } catch (err) {
             console.error('Error adding comment:', err);
         } finally {
             setAddingComment(false);
         }
     };
+
 
     return (
         <Paper elevation={3} sx={{ mb: 3, borderRadius: 2, overflow: 'hidden' }}>

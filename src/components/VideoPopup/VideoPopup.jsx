@@ -50,13 +50,18 @@ const VideoPopup = ({ open, onClose, video, user }) => {
         if (!video || !commentText.trim()) return;
 
         try {
-            const newComment = await addComment(video._id, commentText.trim(), user._id);
-            setComments((prev) => [...prev, newComment]);
-            setCommentText('');
+            // Send the new comment to the server
+            await addComment(video._id, commentText.trim(), user._id);
+            setCommentText(''); // Clear the input field
+
+            // Re-fetch the comments from the server
+            const updatedComments = await getComments(video._id);
+            setComments(updatedComments);
         } catch (error) {
             console.error('Error adding comment:', error);
         }
     };
+
 
     if (!open || !video) return null;
 
@@ -150,6 +155,11 @@ const VideoPopup = ({ open, onClose, video, user }) => {
                         <Typography variant="subtitle1" fontWeight="bold">
                             {video.profile?.user?.name}
                         </Typography>
+                    </Box>
+
+                    {/* Description Section */}
+                    <Box sx={{ marginBottom: '16px' }}>
+                        <Typography variant="body1">{video.description || 'No description available.'}</Typography>
                     </Box>
 
                     {/* Comments Section */}
