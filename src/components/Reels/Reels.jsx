@@ -124,7 +124,11 @@ const Reels = () => {
 
   return (
     <Box
-      
+      sx={{
+        height: '100vh',
+        overflowY: 'auto',
+        scrollSnapType: 'y mandatory',
+      }}
     >
       {error && (
         <Typography variant="body1" color="error" align="center" sx={{ mt: 2 }}>
@@ -138,6 +142,12 @@ const Reels = () => {
         return (
           <Box
             key={video._id || index}
+            sx={{
+              height: '100vh',
+              scrollSnapAlign: 'start',
+              display: 'flex',
+              alignItems: 'center',
+            }}
           >
             <Box
               sx={{
@@ -146,8 +156,9 @@ const Reels = () => {
                 maxWidth: 400,
                 aspectRatio: '9 / 16',
                 overflow: 'hidden',
-                bgcolor: 'black',
                 display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
               <video
