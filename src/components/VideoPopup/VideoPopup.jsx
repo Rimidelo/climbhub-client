@@ -1,260 +1,327 @@
-// src/components/VideoPopup/VideoPopup.jsx
 import React, { useState, useEffect } from 'react';
-import { Box, IconButton, Typography, Avatar, TextField, Button } from '@mui/material';
+import {
+  Box,
+  IconButton,
+  Typography,
+  Avatar,
+  Menu,
+  MenuItem,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+
 import { addComment, toggleLike, getComments } from '../../API/api';
+import CommentsOverlay from '../CommentsOverlay/CommentsOverlay';
 
 const VideoPopup = ({ open, onClose, video, user }) => {
-    const [isLiked, setIsLiked] = useState(false);
-    const [likesCount, setLikesCount] = useState(0);
-    const [comments, setComments] = useState([]);
-    const [commentText, setCommentText] = useState('');
-    const [loadingComments, setLoadingComments] = useState(true);
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
 
-    useEffect(() => {
-        if (open && video) {
-            setIsLiked(video.likes?.includes(user?._id) || false);
-            setLikesCount(video.likes?.length || 0);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
+  const [comments, setComments] = useState([]);
+  const [loadingComments, setLoadingComments] = useState(true);
 
-            const fetchComments = async () => {
-                try {
-                    const fetchedComments = await getComments(video._id);
-                    setComments(fetchedComments);
-                } catch (error) {
-                    console.error('Error fetching comments:', error);
-                } finally {
-                    setLoadingComments(false);
-                }
-            };
+  // 3-dot menu
+  const [anchorEl, setAnchorEl] = useState(null);
+  const isMenuOpen = Boolean(anchorEl);
 
-            fetchComments();
-        }
-    }, [open, video, user]);
+  // Overlay for mobile comments
+  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
 
-    const handleLike = async () => {
-        if (!video) return;
+  useEffect(() => {
+    if (open && video) {
+      setIsLiked(video.likes?.includes(user?._id) || false);
+      setLikesCount(video.likes?.length || 0);
 
+      const fetchComments = async () => {
         try {
-            await toggleLike(video._id, user._id);
-            setIsLiked((prev) => !prev);
-            setLikesCount((prev) => (isLiked ? prev - 1 : prev + 1));
+          const fetchedComments = await getComments(video._id);
+          setComments(fetchedComments);
         } catch (error) {
-            console.error('Error toggling like:', error);
+          console.error('Error fetching comments:', error);
+        } finally {
+          setLoadingComments(false);
         }
-    };
+      };
+      fetchComments();
+    }
+  }, [open, video, user]);
 
-    const handleAddComment = async () => {
-        if (!video || !commentText.trim()) return;
+  const handleLike = async () => {
+    if (!video) return;
+    try {
+      await toggleLike(video._id, user._id);
+      setIsLiked((prev) => !prev);
+      setLikesCount((prev) => (isLiked ? prev - 1 : prev + 1));
+    } catch (error) {
+      console.error('Error toggling like:', error);
+    }
+  };
 
-        try {
-            // Send the new comment to the server
-            await addComment(video._id, commentText.trim(), user._id);
-            setCommentText(''); // Clear the input field
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
 
-            // Re-fetch the comments from the server
-            const updatedComments = await getComments(video._id);
-            setComments(updatedComments);
-        } catch (error) {
-            console.error('Error adding comment:', error);
-        }
-    };
+  const handleDelete = () => {
+    console.log('Delete video with ID:', video._id);
+    handleMenuClose();
+    onClose();
+  };
 
+  // Mobile Comments Overlay
+  const openCommentsOverlay = () => setIsCommentsOpen(true);
+  const closeCommentsOverlay = () => setIsCommentsOpen(false);
 
-    if (!open || !video) return null;
+  const handleAddComment = async (commentText) => {
+    if (!video || !commentText.trim()) return;
+    try {
+      await addComment(video._id, commentText.trim(), user._id);
+      const updatedComments = await getComments(video._id);
+      setComments(updatedComments);
+    } catch (error) {
+      console.error('Error adding comment:', error);
+    }
+  };
 
-    return (
+  if (!open || !video) return null;
+
+  return (
+    <Box
+      sx={{
+        position: 'fixed',
+        inset: 0,
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        zIndex: 1300,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        p: 1,
+      }}
+    >
+      {/* Close Button */}
+      <IconButton
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          top: 16,
+          right: 16,
+          color: '#fff',
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
+
+      {/* Main Container */}
+      <Box
+        sx={{
+          width: '100%',
+          maxWidth: 1100,
+          maxHeight: '95%',
+          borderRadius: 2,
+          overflow: 'hidden',
+          backgroundColor: '#000',
+          display: 'flex',
+          flexDirection: isDesktop ? 'row' : 'column',
+        }}
+      >
+        {/* VIDEO SECTION */}
         <Box
-            sx={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                zIndex: 1300,
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                padding: '20px',
-            }}
+          sx={{
+            backgroundColor: '#000',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            // Higher maxHeight on mobile to see more of the video
+            maxHeight: isDesktop ? '100%' : '90vh',
+          }}
         >
-            {/* Close Button */}
-            <IconButton
-                onClick={onClose}
-                sx={{
-                    position: 'absolute',
-                    top: 16,
-                    right: 16,
-                    color: '#fff',
-                }}
-            >
-                <CloseIcon />
-            </IconButton>
-
-            {/* Popup Content */}
-            <Box
-                sx={{
-                    display: 'flex',
-                    flexDirection: { xs: 'column', md: 'row' },
-                    width: '90%',
-                    maxWidth: '1100px',
-                    maxHeight: '95%',
-                    borderRadius: 8,
-                    overflow: 'hidden',
-                    boxShadow: 24,
-                }}
-            >
-                {/* Left Section: Video */}
-                <Box
-                    sx={{
-                        flex: 1,
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        backgroundColor: '#000',
-                        maxHeight: '100%',
-                    }}
-                >
-                    <video
-                        src={video.videoUrl}
-                        controls
-                        style={{
-                            maxWidth: '100%',
-                            maxHeight: '100%',
-                            objectFit: 'contain',
-                        }}
-                    />
-                </Box>
-
-                {/* Right Section: Details */}
-                <Box
-                    sx={{
-                        flex: 1,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        padding: '16px',
-                        overflowY: 'auto',
-                    }}
-                >
-                    {/* User Info */}
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            marginBottom: '16px',
-                        }}
-                    >
-                        <Avatar
-                            src={video.profile?.profilePicture} // Placeholder for user's profile picture
-                            alt={video.profile?.user?.name}
-                            sx={{ marginRight: '8px' }}
-                        />
-                        <Typography variant="subtitle1" fontWeight="bold">
-                            {video.profile?.user?.name}
-                        </Typography>
-                    </Box>
-
-                    {/* Description Section */}
-                    <Box sx={{ marginBottom: '16px' }}>
-                        <Typography variant="body1">{video.description || 'No description available.'}</Typography>
-                    </Box>
-
-                    {/* Comments Section */}
-                    <Box
-                        sx={{
-                            flex: 1,
-                            overflowY: 'auto',
-                            marginBottom: '16px',
-                        }}
-                    >
-                        {loadingComments ? (
-                            <Typography>Loading comments...</Typography>
-                        ) : comments.length > 0 ? (
-                            comments.map((comment, index) => (
-                                <Box
-                                    key={index}
-                                    sx={{
-                                        display: 'flex',
-                                        alignItems: 'flex-start',
-                                        marginBottom: '12px',
-                                    }}
-                                >
-                                    <Avatar
-                                        src={comment.profile?.profilePicture}
-                                        alt={comment.profile?.user?.name}
-                                        sx={{ width: 32, height: 32, marginRight: '8px' }}
-                                    />
-                                    <Box>
-                                        <Typography variant="body2" fontWeight="bold">
-                                            {comment.profile?.user?.name}
-                                        </Typography>
-                                        <Typography variant="body2">{comment.text}</Typography>
-                                    </Box>
-                                </Box>
-                            ))
-                        ) : (
-                            <Typography>No comments yet.</Typography>
-                        )}
-                    </Box>
-
-                    {/* Actions and Likes */}
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            marginBottom: '16px',
-                        }}
-                    >
-                        <IconButton
-                            onClick={handleLike}
-                            sx={{ marginRight: '8px' }}
-                        >
-                            {isLiked ? (
-                                <FavoriteIcon color="error" />
-                            ) : (
-                                <FavoriteBorderIcon />
-                            )}
-                        </IconButton>
-                        <Typography variant="body2">{likesCount} likes</Typography>
-                        <IconButton sx={{ marginLeft: 'auto' }}>
-                            <ChatBubbleOutlineIcon />
-                        </IconButton>
-                    </Box>
-
-                    {/* Add Comment */}
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            borderTop: '1px solid #ccc',
-                            paddingTop: '8px',
-                        }}
-                    >
-                        <TextField
-                            placeholder="Add a comment..."
-                            fullWidth
-                            size="small"
-                            variant="outlined"
-                            value={commentText}
-                            onChange={(e) => setCommentText(e.target.value)}
-                            sx={{ marginRight: '8px' }}
-                        />
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            size="small"
-                            onClick={handleAddComment}
-                        >
-                            Post
-                        </Button>
-                    </Box>
-                </Box>
-            </Box>
+          <video
+            src={video.videoUrl}
+            controls
+            style={{
+              // On desktop, fill parent
+              // On mobile, 70% is your choice to center a narrower video
+              maxWidth: isDesktop ? '100%' : '70%',
+              maxHeight: '100%',
+              objectFit: 'contain',
+            }}
+          />
         </Box>
-    );
+
+        {/* DESKTOP COMMENTS SECTION */}
+        {isDesktop && (
+          <Box
+            sx={{
+              flexBasis: '40%',
+              display: 'flex',
+              flexDirection: 'column',
+              borderLeft: '1px solid #444',
+            }}
+          >
+            {/* USER BAR + 3-DOT MENU */}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                p: 2,
+                borderBottom: '1px solid #444',
+                color: '#fff',
+              }}
+            >
+              <Avatar
+                src={video.profile?.profilePicture}
+                alt={video.profile?.user?.name}
+                sx={{ mr: 1 }}
+              />
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ flexGrow: 1 }}>
+                {video.profile?.user?.name}
+              </Typography>
+              <IconButton onClick={handleMenuOpen} sx={{ color: '#fff' }}>
+                <MoreHorizIcon />
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={isMenuOpen}
+                onClose={handleMenuClose}
+                PaperProps={{
+                  sx: {
+                    backgroundColor: '#333',
+                    color: '#fff',
+                  },
+                }}
+              >
+                <MenuItem onClick={handleDelete} sx={{ color: '#fff' }}>
+                  Delete
+                </MenuItem>
+              </Menu>
+            </Box>
+
+            {/* SCROLLABLE COMMENTS */}
+            <Box sx={{ flex: 1, overflowY: 'auto', p: 2, color: '#fff' }}>
+              {video.description && (
+                <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', mb: 2 }}>
+                  {video.description}
+                </Typography>
+              )}
+              {loadingComments ? (
+                <Typography variant="body2">Loading comments...</Typography>
+              ) : comments.length > 0 ? (
+                comments.map((comment, i) => (
+                  <Box key={i} sx={{ display: 'flex', mb: 2 }}>
+                    <Avatar
+                      src={comment.profile?.profilePicture}
+                      alt={comment.profile?.user?.name}
+                      sx={{ width: 32, height: 32, mr: 1 }}
+                    />
+                    <Box sx={{ color: '#fff' }}>
+                      <Typography variant="body2" fontWeight="bold">
+                        {comment.profile?.user?.name}
+                      </Typography>
+                      <Typography variant="body2">{comment.text}</Typography>
+                    </Box>
+                  </Box>
+                ))
+              ) : (
+                <Typography variant="body2">No comments yet.</Typography>
+              )}
+            </Box>
+
+            {/* LIKE ROW */}
+            <Box
+              sx={{
+                borderTop: '1px solid #444',
+                p: 2,
+                display: 'flex',
+                alignItems: 'center',
+                color: '#fff',
+              }}
+            >
+              <IconButton onClick={handleLike} sx={{ color: '#fff' }}>
+                {isLiked ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
+              </IconButton>
+              <Typography variant="body2" sx={{ ml: 1 }}>
+                {likesCount} {likesCount === 1 ? 'like' : 'likes'}
+              </Typography>
+            </Box>
+
+            {/* ADD COMMENT ROW */}
+            <Box
+              sx={{
+                borderTop: '1px solid #444',
+                p: 2,
+                display: 'flex',
+                gap: 1,
+              }}
+            >
+              <CommentsOverlay.AddCommentInput onAddComment={handleAddComment} />
+            </Box>
+          </Box>
+        )}
+
+        {/* MOBILE COMMANDS BAR */}
+        {!isDesktop && (
+          <Box
+            sx={{
+              p: 2,
+              borderTop: '1px solid #444',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              color: '#fff',
+              justifyContent: 'space-between',
+              backgroundColor: 'rgba(0,0,0,0.7)',
+            }}
+          >
+            {/* LEFT: LIKE BUTTON & COUNT */}
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <IconButton onClick={handleLike} sx={{ color: '#fff', mr: 1 }}>
+                {isLiked ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
+              </IconButton>
+              <Typography variant="body2">
+                {likesCount} {likesCount === 1 ? 'like' : 'likes'}
+              </Typography>
+            </Box>
+
+            {/* RIGHT: COMMENT ICON + VIEW ALL X COMMENTS */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <IconButton onClick={openCommentsOverlay} sx={{ color: '#fff' }}>
+                <ChatBubbleOutlineIcon />
+              </IconButton>
+              {comments.length > 0 && (
+                <Typography
+                  variant="body2"
+                  sx={{ cursor: 'pointer' }}
+                  onClick={openCommentsOverlay}
+                >
+                  View all {comments.length} comments
+                </Typography>
+              )}
+            </Box>
+          </Box>
+        )}
+      </Box>
+
+      {/* COMMENTS OVERLAY (Mobile) */}
+      <CommentsOverlay
+        open={isCommentsOpen}
+        onClose={closeCommentsOverlay}
+        video={video}
+        user={user}
+        comments={comments}
+        loadingComments={loadingComments}
+        handleAddComment={handleAddComment}
+      />
+    </Box>
+  );
 };
 
 export default VideoPopup;
