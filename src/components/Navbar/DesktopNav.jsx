@@ -10,7 +10,8 @@ import {
   ListItemText 
 } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
-import VideoCallIcon from '@mui/icons-material/VideoCall'; // <--- NEW ICON
+import VideoCallIcon from '@mui/icons-material/VideoCall';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle'; // <--- NEW ICON
 import { useNavigate } from 'react-router-dom';
 
 const drawerWidth = 240; // Adjust width to taste
@@ -66,6 +67,16 @@ function DesktopNav() {
                                 <VideoCallIcon />
                             </ListItemIcon>
                             <ListItemText primary="Upload Video" />
+                        </ListItemButton>
+                    </ListItem>
+
+                    {/* Profile */}
+                    <ListItem disablePadding>
+                        <ListItemButton onClick={() => navigate('/profile')}>
+                            <ListItemIcon>
+                                <AccountCircleIcon /> {/* Use Profile Icon */}
+                            </ListItemIcon>
+                            <ListItemText primary="Profile" />
                         </ListItemButton>
                     </ListItem>
                 </List>

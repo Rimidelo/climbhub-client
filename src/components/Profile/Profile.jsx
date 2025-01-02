@@ -18,7 +18,7 @@ const Profile = () => {
     const [videos, setVideos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedVideo, setSelectedVideo] = useState(null);
-    const [error, setError] = useState('');
+    const [ ,setError] = useState('');
 
     useEffect(() => {
         const fetchProfileData = async () => {
