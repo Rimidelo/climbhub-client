@@ -220,14 +220,15 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
         }
     };
 
-
     return (
         <Paper elevation={3} sx={{ mb: 3, borderRadius: 2, overflow: 'hidden' }}>
             {/* Top Section: User Info */}
             <Box sx={{ display: 'flex', alignItems: 'center', p: 2, bgcolor: 'background.paper', justifyContent: 'space-between' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Avatar sx={{ mr: 2 }}>
-                        {video.profile?.user?.name?.charAt(0).toUpperCase()}
+                    <Avatar
+                        sx={{ mr: 2 }}
+                        src={`${video?.profile?.user?.image || '/default-avatar.png'}?t=${Date.now()}`}
+                    >
                     </Avatar>
                     <Typography variant="subtitle2" sx={{ mr: 2 }}>
                         {video.profile?.user?.name}

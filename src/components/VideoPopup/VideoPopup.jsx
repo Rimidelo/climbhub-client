@@ -188,7 +188,7 @@ const VideoPopup = ({ open, onClose, video, user }) => {
                             }}
                         >
                             <Avatar
-                                src={video.profile?.profilePicture}
+                                src={`${video?.profile?.user?.image || '/default-avatar.png'}?t=${Date.now()}`}
                                 alt={video.profile?.user?.name}
                                 sx={{ mr: 1 }}
                             />
