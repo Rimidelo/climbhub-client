@@ -11,6 +11,17 @@ import {
     CircularProgress,
 } from '@mui/material';
 
+const colorGradingMap = {
+    Blue: '#0000FF',
+    Red: '#FF0000',
+    Yellow: '#FFFF00',
+    Green: '#008000',
+    Black: '#000000',
+    White: '#FFFFFF',
+    Orange: '#FFA500',
+    'Light Green': '#90EE90',
+};
+
 const Profile = () => {
     const { user } = useContext(UserContext);
     const [profile, setProfile] = useState(null);
@@ -159,6 +170,36 @@ const Profile = () => {
                                 muted
                                 playsInline
                             />
+                            {/* Grading Display */}
+                            {video.gradingSystem === 'Japanese-Colored' && colorGradingMap[video.difficultyLevel] ? (
+                                <Box
+                                    sx={{
+                                        position: 'absolute',
+                                        top: 8,
+                                        right: 8,
+                                        width: 15,
+                                        height: 30,
+                                        backgroundColor: colorGradingMap[video.difficultyLevel],
+                                    }}
+                                />
+                            ) : (
+                                <Typography
+                                    variant="body2"
+                                    sx={{
+                                        position: 'absolute',
+                                        top: 8,
+                                        right: 8,
+                                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                                        color: '#fff',
+                                        padding: '4px 8px',
+                                        borderRadius: 2,
+                                        fontSize: '0.8rem',
+                                        fontWeight: 'bold',
+                                    }}
+                                >
+                                    {video.difficultyLevel}
+                                </Typography>
+                            )}
                         </Box>
                     </Grid>
                 ))}
