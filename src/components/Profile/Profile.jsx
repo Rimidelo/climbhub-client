@@ -9,16 +9,21 @@ import {
     Button,
     Divider,
     CircularProgress,
+    IconButton,
+    Menu,
+    MenuItem,
 } from '@mui/material';
+import SettingsIcon from '@mui/icons-material/Settings';
 import VideoPopup from '../VideoPopup/VideoPopup';
 
 const Profile = () => {
-    const { user } = useContext(UserContext);
+    const { user, handleLogout } = useContext(UserContext);
     const [profile, setProfile] = useState(null);
     const [videos, setVideos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedVideo, setSelectedVideo] = useState(null);
-    const [ ,setError] = useState('');
+    const [, setError] = useState('');
+    const [anchorEl, setAnchorEl] = useState(null); // State for settings menu
 
     useEffect(() => {
         const fetchProfileData = async () => {
@@ -51,6 +56,14 @@ const Profile = () => {
             console.error('Error toggling like:', err);
             setError('Failed to toggle like.');
         }
+    };
+
+    const handleMenuOpen = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleMenuClose = () => {
+        setAnchorEl(null);
     };
 
     if (loading) {
@@ -103,11 +116,35 @@ const Profile = () => {
                     <Typography variant="h4" sx={{ fontWeight: 'bold', fontSize: { xs: '1.5rem', md: '2rem' } }}>
                         {profile.user.name}
                     </Typography>
-                    <Button variant="outlined" sx={{ marginTop: 2, fontSize: { xs: '0.8rem', md: '1rem' } }}>
-                        Edit Profile
-                    </Button>
+                    <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 2 }}>
+                        <Button variant="outlined" sx={{ fontSize: { xs: '0.8rem', md: '1rem' } }}>
+                            Edit Profile
+                        </Button>
+                        <IconButton
+                            onClick={handleMenuOpen}
+                            sx={{ marginLeft: 2 }}
+                        >
+                            <SettingsIcon />
+                        </IconButton>
+                    </Box>
                 </Box>
             </Box>
+
+            {/* Settings Menu */}
+            <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+            >
+                <MenuItem
+                    onClick={() => {
+                        handleLogout();
+                        handleMenuClose();
+                    }}
+                >
+                    Logout
+                </MenuItem>
+            </Menu>
 
             {/* Stats */}
             <Box

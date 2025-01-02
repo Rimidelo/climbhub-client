@@ -84,7 +84,7 @@ function DesktopNav() {
                 {/* Possibly place user info or other items at bottom */}
                 <Box sx={{ marginTop: 'auto', mb: 2 }}>
                     <Typography variant="body2" align="center">
-                        © 2024 ClimbHub
+                        © 2025 ClimbHub
                     </Typography>
                 </Box>
             </Box>
