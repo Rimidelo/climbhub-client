@@ -4,13 +4,17 @@ import {
   Typography,
   IconButton,
   CircularProgress,
+  Modal,
+  Avatar,
+  TextField,
+  Button,
 } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import IosShareIcon from '@mui/icons-material/IosShare';
 import { UserContext } from '../../contexts/UserContext';
-import { getAllVideos, getComments, toggleLike } from '../../API/api';
+import { getAllVideos, getComments, toggleLike, addComment } from '../../API/api';
 
 const Reels = () => {
   const { user } = useContext(UserContext);
@@ -18,6 +22,8 @@ const Reels = () => {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedVideo, setSelectedVideo] = useState(null); // For comments modal
+  const [commentText, setCommentText] = useState(''); // New comment input
   const videoRefs = useRef([]);
 
   useEffect(() => {
@@ -104,6 +110,29 @@ const Reels = () => {
     }
   };
 
+  const handleShowComments = (video) => {
+    setSelectedVideo(video);
+  };
+
+  const handleCloseComments = () => {
+    setSelectedVideo(null);
+  };
+
+  const handleAddComment = async () => {
+    if (!commentText.trim() || !selectedVideo) return;
+
+    try {
+      const newComment = await addComment(selectedVideo._id, commentText.trim(), user._id);
+      setSelectedVideo((prev) => ({
+        ...prev,
+        comments: [...prev.comments, newComment],
+      }));
+      setCommentText('');
+    } catch (err) {
+      console.error('Error adding comment:', err);
+    }
+  };
+
   if (loading) {
     return (
       <Box
@@ -124,9 +153,9 @@ const Reels = () => {
         height: '100vh',
         overflowY: 'auto',
         scrollSnapType: 'y mandatory',
-        '::-webkit-scrollbar': { display: 'none' }, // Hide scrollbar for Webkit browsers
-        '-ms-overflow-style': 'none', // Hide scrollbar for IE/Edge
-        'scrollbar-width': 'none', // Hide scrollbar for Firefox
+        '::-webkit-scrollbar': { display: 'none' },
+        '-ms-overflow-style': 'none',
+        'scrollbar-width': 'none',
       }}
     >
       {error && (
@@ -224,7 +253,10 @@ const Reels = () => {
                 </Box>
 
                 <Box sx={{ textAlign: 'center' }}>
-                  <IconButton sx={{ color: 'white' }}>
+                  <IconButton
+                    onClick={() => handleShowComments(video)}
+                    sx={{ color: 'white' }}
+                  >
                     <ChatBubbleOutlineIcon sx={{ fontSize: 28 }} />
                   </IconButton>
                   <Typography variant="body2">
@@ -243,11 +275,49 @@ const Reels = () => {
         );
       })}
 
-      {videos.length === 0 && (
-        <Box textAlign="center" mt={2} color="white">
-          <Typography variant="body1">No Reels to show.</Typography>
+      {/* Comments Modal */}
+      <Modal open={!!selectedVideo} onClose={handleCloseComments}>
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '90%',
+            maxWidth: 400,
+            bgcolor: 'background.paper',
+            borderRadius: 2,
+            p: 2,
+          }}
+        >
+          <Typography variant="h6" gutterBottom>
+            Comments
+          </Typography>
+          <Box sx={{ maxHeight: 300, overflowY: 'auto', mb: 2 }}>
+            {selectedVideo?.comments.map((comment, i) => (
+              <Box key={i} sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Avatar
+                  src={comment.profile?.profilePicture}
+                  alt={comment.profile?.user?.name}
+                  sx={{ width: 32, height: 32, mr: 1 }}
+                />
+                <Typography variant="body2">{comment.text}</Typography>
+              </Box>
+            ))}
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <TextField
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              fullWidth
+              placeholder="Add a comment..."
+            />
+            <Button variant="contained" onClick={handleAddComment}>
+              Post
+            </Button>
+          </Box>
         </Box>
-      )}
+      </Modal>
     </Box>
   );
 };
