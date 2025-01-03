@@ -37,6 +37,14 @@ const UploadVideo = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  const isFormValid =
+    description.trim() &&
+    gradingSystem &&
+    difficultyLevel &&
+    gymId &&
+    videoFile;
+
+
   // Fetch gyms once on component mount
   useEffect(() => {
     const fetchGymsData = async () => {
@@ -291,8 +299,8 @@ const UploadVideo = () => {
                         >
                           <Box
                             sx={{
-                              width: 40, 
-                              height: 20, 
+                              width: 40,
+                              height: 20,
                               backgroundColor: level.color,
                             }}
                           />
@@ -331,26 +339,31 @@ const UploadVideo = () => {
             {/* Video File Input */}
             <Grid item xs={12}>
               <FormControl fullWidth required>
-                <Button
-                  variant="contained"
-                  component="label"
-                  startIcon={<UploadFileIcon />}
-                  sx={{ textTransform: 'none' }}
-                >
-                  Select Video File
-                  <input
-                    type="file"
-                    accept="video/*"
-                    hidden
-                    onChange={handleVideoChange}
-                    required
-                  />
-                </Button>
-                {videoFile && (
-                  <Typography variant="body2" sx={{ mt: 1 }}>
-                    Selected File: {videoFile.name}
-                  </Typography>
-                )}
+                {/* Video File Input */}
+                <Grid item xs={12}>
+                  <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <Button
+                      variant="contained"
+                      component="label"
+                      startIcon={<UploadFileIcon />}
+                      sx={{ textTransform: 'none' }}
+                    >
+                      Select Video File
+                      <input
+                        type="file"
+                        accept="video/*"
+                        hidden
+                        onChange={handleVideoChange}
+                        required
+                      />
+                    </Button>
+                  </Box>
+                  {videoFile && (
+                    <Typography variant="body2" sx={{ mt: 1, textAlign: 'center' }}>
+                      Selected File: {videoFile.name}
+                    </Typography>
+                  )}
+                </Grid>
               </FormControl>
             </Grid>
 
@@ -361,7 +374,7 @@ const UploadVideo = () => {
                 variant="contained"
                 color="primary"
                 fullWidth
-                disabled={submitting}
+                disabled={!isFormValid || submitting}
               >
                 {submitting ? <CircularProgress size={24} color="inherit" /> : 'Upload'}
               </Button>
