@@ -8,7 +8,6 @@ import {
     ListItemButton,
     ListItemIcon,
     ListItemText,
-    Avatar
 } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import VideoCallIcon from '@mui/icons-material/VideoCall';
