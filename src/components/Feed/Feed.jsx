@@ -28,6 +28,7 @@ const Feed = () => {
     const [, setLikeLoading] = useState({});
     const [error, setError] = useState('');
     const drawerWidth = 240; // Adjust width to taste
+    console.log(videos);
 
 
     useEffect(() => {
@@ -44,7 +45,12 @@ const Feed = () => {
                     })
                 );
 
-                setVideos(videosWithComments);
+                // Sort videos by createdAt (newest first)
+                const sortedVideos = videosWithComments.sort(
+                    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+                );
+
+                setVideos(sortedVideos);
                 setLoading(false);
             } catch (err) {
                 console.error('Error fetching videos or comments:', err);
@@ -55,6 +61,7 @@ const Feed = () => {
 
         fetchVideos();
     }, []);
+
 
 
     const handleLike = async (videoId) => {
