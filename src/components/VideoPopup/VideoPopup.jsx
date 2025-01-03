@@ -15,7 +15,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 
-import { addComment, toggleLike, getComments } from '../../API/api';
+import { addComment, toggleLike, getComments, deleteVideo } from '../../API/api';
 import CommentsOverlay from '../CommentsOverlay/CommentsOverlay';
 
 const VideoPopup = ({ open, onClose, video, user }) => {
@@ -80,8 +80,8 @@ const VideoPopup = ({ open, onClose, video, user }) => {
     setAnchorEl(null);
   };
 
-  const handleDelete = () => {
-    
+  const handleDelete = async () => {
+    await deleteVideo(video._id);
     console.log('Delete video with ID:', video._id);
     handleMenuClose();
     onClose();

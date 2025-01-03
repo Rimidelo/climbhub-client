@@ -349,7 +349,15 @@ const Profile = () => {
       {/* Video Popup */}
       <VideoPopup
         open={!!selectedVideo}
-        onClose={() => setSelectedVideo(null)}
+        onClose={async () => {
+          setSelectedVideo(null); // Close the popup
+          try {
+            const userVideos = await getVideosByProfile(profile._id); // Fetch updated videos
+            setVideos(userVideos); // Update the video list
+          } catch (error) {
+            console.error('Error refreshing videos:', error);
+          }
+        }}
         video={selectedVideo}
         handleLike={handleLike}
         setError={setError}
