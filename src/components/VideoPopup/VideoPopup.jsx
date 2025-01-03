@@ -81,6 +81,7 @@ const VideoPopup = ({ open, onClose, video, user }) => {
   };
 
   const handleDelete = () => {
+    
     console.log('Delete video with ID:', video._id);
     handleMenuClose();
     onClose();

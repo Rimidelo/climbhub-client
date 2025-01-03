@@ -103,6 +103,28 @@ export const getComments = async (videoId) => {
   }
 };
 
+// Fetch videos uploaded by a specific profile
+export const getVideosByProfile = async (profileId) => {
+  try {
+    const response = await axios.get(`${API_URL}/videos/profile/${profileId}/videos`);
+    return response.data; // Returns an array of videos
+  } catch (error) {
+    console.error('Error fetching uploaded videos:', error);
+    throw error;
+  }
+};
+
+export const deleteVideo = async (videoId) => {
+  try {
+    const response = await axios.delete(`${API_URL}/videos/${videoId}`);
+    return response.data; // { message: 'Video deleted successfully' }
+  } catch (error) {
+    console.error('Error deleting video:', error);
+    throw error;
+  }
+};
+
+
 // -------------------
 // Profile
 // -------------------
@@ -112,17 +134,6 @@ export const getUserProfile = async (userId) => {
     return response.data;
   } catch (error) {
     console.error('Error fetching user profile:', error);
-    throw error;
-  }
-};
-
-// Fetch videos uploaded by a specific profile
-export const getVideosByProfile = async (profileId) => {
-  try {
-    const response = await axios.get(`${API_URL}/videos/profile/${profileId}/videos`);
-    return response.data; // Returns an array of videos
-  } catch (error) {
-    console.error('Error fetching uploaded videos:', error);
     throw error;
   }
 };
