@@ -178,6 +178,7 @@ const UploadVideo = () => {
       { value: 'Red', color: '#FF0000' },
       { value: 'Blue', color: '#0000FF' },
       { value: 'White', color: '#FFFFFF' },
+      { value: 'Cyan', color: '#00FFFF' },
       { value: 'Orange', color: '#FFA500' },
       { value: 'Light Green', color: '#90EE90' },
       { value: 'Black', color: '#000000' },
