@@ -124,6 +124,16 @@ export const deleteVideo = async (videoId) => {
   }
 };
 
+export const getVideosByPreferences = async (userId) => {
+  try {
+    const response = await axios.get(`${API_URL}/videos/preferences/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching videos by preferences:', error);
+    throw error;
+  }
+};
+
 
 // -------------------
 // Profile
@@ -152,3 +162,6 @@ export const uploadProfileImage = async (userId, file) => {
     throw error;
   }
 };
+
+
+
