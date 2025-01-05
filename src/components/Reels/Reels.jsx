@@ -8,6 +8,7 @@ import {
   Avatar,
   TextField,
   Button,
+  Paper,
 } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
@@ -15,6 +16,20 @@ import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import IosShareIcon from '@mui/icons-material/IosShare';
 import { UserContext } from '../../contexts/UserContext';
 import { getVideosByPreferences, getComments, toggleLike, addComment } from '../../API/api';
+
+// Define color mapping for grading system
+const colorGradingMap = {
+  "Pink": "#FFC0CB",
+  "Green": "#008000",
+  "Yellow": "#FFFF00",
+  "Red": "#FF0000",
+  "Blue": "#0000FF",
+  "White": "#FFFFFF",
+  "Orange": "#FFA500",
+  "Light Green": "#90EE90",
+  "Black": "#000000",
+  // Add other colors as needed
+};
 
 const Reels = () => {
   const { user } = useContext(UserContext);
@@ -187,14 +202,17 @@ const Reels = () => {
         const isLiked = user && video.likes.includes(user._id);
 
         return (
-          <Box
+          <Paper
             key={video._id || index}
+            elevation={3}
             sx={{
               height: '100vh',
               scrollSnapAlign: 'start',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              position: 'relative',
+              bgcolor: 'black',
             }}
           >
             <Box
@@ -209,6 +227,38 @@ const Reels = () => {
                 justifyContent: 'center',
               }}
             >
+              {/* Grading Indicator */}
+              {video.gradingSystem === "Japanese-Colored" && colorGradingMap[video.difficultyLevel] ? (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: 16,
+                    right: 16,
+                    width: 40,
+                    height: 20,
+                    backgroundColor: colorGradingMap[video.difficultyLevel],
+                    borderRadius: '4px',
+                  }}
+                />
+              ) : (
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    position: 'absolute',
+                    top: 16,
+                    right: 16,
+                    backgroundColor: 'rgba(0,0,0,0.6)',
+                    color: '#fff',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  {video.difficultyLevel}
+                </Typography>
+              )}
+
+              {/* Video Element */}
               <video
                 ref={(el) => (videoRefs.current[index] = el)}
                 src={video.videoUrl}
@@ -222,6 +272,8 @@ const Reels = () => {
                   backgroundColor: '#000',
                 }}
               />
+
+              {/* Video Description and User Info */}
               <Box
                 sx={{
                   position: 'absolute',
@@ -232,7 +284,10 @@ const Reels = () => {
                   pr: '60px',
                 }}
               >
-                <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{ fontWeight: 'bold', mb: 1 }}
+                >
                   {video?.profile?.user?.name || 'Unknown User'}
                 </Typography>
                 <Typography variant="body2" sx={{ mb: 1 }}>
@@ -240,6 +295,7 @@ const Reels = () => {
                 </Typography>
               </Box>
 
+              {/* Action Buttons */}
               <Box
                 sx={{
                   position: 'absolute',
@@ -253,6 +309,7 @@ const Reels = () => {
                   zIndex: 5,
                 }}
               >
+                {/* Like Button */}
                 <Box sx={{ textAlign: 'center' }}>
                   <IconButton
                     onClick={() => handleLike(video._id)}
@@ -269,6 +326,7 @@ const Reels = () => {
                   </Typography>
                 </Box>
 
+                {/* Comment Button */}
                 <Box sx={{ textAlign: 'center' }}>
                   <IconButton
                     onClick={() => handleShowComments(video)}
@@ -281,6 +339,7 @@ const Reels = () => {
                   </Typography>
                 </Box>
 
+                {/* Share Button */}
                 <Box sx={{ textAlign: 'center' }}>
                   <IconButton sx={{ color: 'white' }}>
                     <IosShareIcon sx={{ fontSize: 28 }} />
@@ -288,7 +347,7 @@ const Reels = () => {
                 </Box>
               </Box>
             </Box>
-          </Box>
+          </Paper>
         );
       })}
 
