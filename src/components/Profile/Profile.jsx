@@ -6,7 +6,7 @@ import {
   toggleLike,
   uploadProfileImage,
 } from '../../API/api';
-
+import AnimatedChip from '../AnimatedChip/AnimatedChip';
 import {
   Box,
   Typography,
@@ -278,13 +278,9 @@ const Profile = () => {
               <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
                 Skill Level
               </Typography>
-              <Chip
-                label={profile.skillLevel || 'N/A'}
-                variant="outlined"
-                color="primary"
-                sx={{ fontSize: '0.9rem' }}
-              />
+              <AnimatedChip label={profile.skillLevel || 'N/A'} />
             </Box>
+
 
             {/* Favorite Gyms */}
             <Box>
