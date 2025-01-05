@@ -19,12 +19,11 @@ import { getVideosByPreferences, getComments, toggleLike, addComment } from '../
 const Reels = () => {
   const { user } = useContext(UserContext);
 
-  const [preferredVideos, setPreferredVideos] = useState([]);
-  const [otherVideos, setOtherVideos] = useState([]);
+  const [videos, setVideos] = useState([]); // Unified videos array
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [selectedVideo, setSelectedVideo] = useState(null);
-  const [commentText, setCommentText] = useState('');
+  const [selectedVideo, setSelectedVideo] = useState(null); // For comments modal
+  const [commentText, setCommentText] = useState(''); // New comment input
   const videoRefs = useRef([]);
 
   useEffect(() => {
@@ -32,15 +31,24 @@ const Reels = () => {
       try {
         if (!user || !user._id) {
           setError('User not logged in.');
+          setLoading(false);
           return;
         }
 
         const { preferredVideos, otherVideos } = await getVideosByPreferences(user._id);
+        const allVideos = [...preferredVideos, ...otherVideos];
 
-        setPreferredVideos(preferredVideos);
-        setOtherVideos(otherVideos);
+        // Fetch comments for each video
+        const videosWithComments = await Promise.all(
+          allVideos.map(async (video) => {
+            const comments = await getComments(video._id);
+            return { ...video, comments };
+          })
+        );
+
+        setVideos(videosWithComments);
       } catch (err) {
-        console.error('Error fetching videos by preferences:', err);
+        console.error('Error fetching videos:', err);
         setError('Failed to load videos.');
       } finally {
         setLoading(false);
@@ -51,7 +59,7 @@ const Reels = () => {
   }, [user]);
 
   useEffect(() => {
-    if (!preferredVideos.length && !otherVideos.length) return;
+    if (!videos.length) return;
 
     const options = {
       root: null,
@@ -78,32 +86,31 @@ const Reels = () => {
     return () => {
       observer.disconnect();
     };
-  }, [preferredVideos, otherVideos]);
+  }, [videos]);
 
-  const handleLike = async (videoIndex, isPreferred) => {
+  const handleLike = async (videoId) => {
     if (!user || !user._id) {
       setError('Please log in to like videos.');
       return;
     }
 
     try {
-      const videos = isPreferred ? preferredVideos : otherVideos;
-      const video = videos[videoIndex];
-      await toggleLike(video._id, user._id);
+      await toggleLike(videoId, user._id);
 
-      const setVideos = isPreferred ? setPreferredVideos : setOtherVideos;
       setVideos((prev) =>
-        prev.map((v, i) => {
-          if (i !== videoIndex) return v;
-          const isLiked = v.likes.includes(user._id);
-          let updatedLikes = [...v.likes];
+        prev.map((video) => {
+          if (video._id !== videoId) return video;
+
+          const isLiked = video.likes.includes(user._id);
+          let updatedLikes = [...video.likes];
           if (isLiked) {
             updatedLikes = updatedLikes.filter((uid) => uid !== user._id);
           } else {
             updatedLikes.push(user._id);
           }
+
           return {
-            ...v,
+            ...video,
             likes: updatedLikes,
             likesCount: updatedLikes.length,
           };
@@ -128,13 +135,19 @@ const Reels = () => {
 
     try {
       const newComment = await addComment(selectedVideo._id, commentText.trim(), user._id);
-      setSelectedVideo((prev) => ({
-        ...prev,
-        comments: [...prev.comments, newComment],
-      }));
+      setVideos((prev) =>
+        prev.map((video) => {
+          if (video._id !== selectedVideo._id) return video;
+          return {
+            ...video,
+            comments: [...video.comments, newComment],
+          };
+        })
+      );
       setCommentText('');
     } catch (err) {
       console.error('Error adding comment:', err);
+      setError('Failed to add comment.');
     }
   };
 
@@ -152,118 +165,6 @@ const Reels = () => {
     );
   }
 
-  const renderVideos = (videos, isPreferred) =>
-    videos.map((video, index) => {
-      const isLiked = user && video.likes.includes(user._id);
-
-      return (
-        <Box
-          key={video._id || index}
-          sx={{
-            height: '100vh',
-            scrollSnapAlign: 'start',
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
-          <Box
-            sx={{
-              position: 'relative',
-              width: '100%',
-              maxWidth: 400,
-              aspectRatio: '9 / 16',
-              overflow: 'hidden',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <video
-              ref={(el) => (videoRefs.current[index] = el)}
-              src={video.videoUrl}
-              loop
-              muted
-              playsInline
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                backgroundColor: '#000',
-              }}
-            />
-            <Box
-              sx={{
-                position: 'absolute',
-                bottom: 16,
-                left: 16,
-                color: '#fff',
-                zIndex: 5,
-                pr: '60px',
-              }}
-            >
-              <Typography
-                variant="subtitle2"
-                sx={{ fontWeight: 'bold', mb: 1 }}
-              >
-                {video?.profile?.user?.name || 'Unknown User'}
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 1 }}>
-                {video.description || 'No Description'}
-              </Typography>
-            </Box>
-
-            <Box
-              sx={{
-                position: 'absolute',
-                bottom: 80,
-                right: 16,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: 2,
-                color: '#fff',
-                zIndex: 5,
-              }}
-            >
-              <Box sx={{ textAlign: 'center' }}>
-                <IconButton
-                  onClick={() => handleLike(index, isPreferred)}
-                  sx={{ color: 'white' }}
-                >
-                  {isLiked ? (
-                    <FavoriteIcon sx={{ fontSize: 28, color: 'red' }} />
-                  ) : (
-                    <FavoriteBorderIcon sx={{ fontSize: 28 }} />
-                  )}
-                </IconButton>
-                <Typography variant="body2">
-                  {video.likesCount || video.likes.length || 0}
-                </Typography>
-              </Box>
-
-              <Box sx={{ textAlign: 'center' }}>
-                <IconButton
-                  onClick={() => handleShowComments(video)}
-                  sx={{ color: 'white' }}
-                >
-                  <ChatBubbleOutlineIcon sx={{ fontSize: 28 }} />
-                </IconButton>
-                <Typography variant="body2">
-                  {video.comments?.length || 0}
-                </Typography>
-              </Box>
-
-              <Box sx={{ textAlign: 'center' }}>
-                <IconButton sx={{ color: 'white' }}>
-                  <IosShareIcon sx={{ fontSize: 28 }} />
-                </IconButton>
-              </Box>
-            </Box>
-          </Box>
-        </Box>
-      );
-    });
-
   return (
     <Box
       sx={{
@@ -273,6 +174,7 @@ const Reels = () => {
         '::-webkit-scrollbar': { display: 'none' },
         '-ms-overflow-style': 'none',
         'scrollbar-width': 'none',
+        bgcolor: 'black',
       }}
     >
       {error && (
@@ -281,8 +183,114 @@ const Reels = () => {
         </Typography>
       )}
 
-      {renderVideos(preferredVideos, true)}
-      {renderVideos(otherVideos, false)}
+      {videos.map((video, index) => {
+        const isLiked = user && video.likes.includes(user._id);
+
+        return (
+          <Box
+            key={video._id || index}
+            sx={{
+              height: '100vh',
+              scrollSnapAlign: 'start',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Box
+              sx={{
+                position: 'relative',
+                width: '100%',
+                maxWidth: 400,
+                aspectRatio: '9 / 16',
+                overflow: 'hidden',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <video
+                ref={(el) => (videoRefs.current[index] = el)}
+                src={video.videoUrl}
+                loop
+                muted
+                playsInline
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  backgroundColor: '#000',
+                }}
+              />
+              <Box
+                sx={{
+                  position: 'absolute',
+                  bottom: 16,
+                  left: 16,
+                  color: '#fff',
+                  zIndex: 5,
+                  pr: '60px',
+                }}
+              >
+                <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>
+                  {video?.profile?.user?.name || 'Unknown User'}
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 1 }}>
+                  {video.description || 'No Description'}
+                </Typography>
+              </Box>
+
+              <Box
+                sx={{
+                  position: 'absolute',
+                  bottom: 80,
+                  right: 16,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 2,
+                  color: '#fff',
+                  zIndex: 5,
+                }}
+              >
+                <Box sx={{ textAlign: 'center' }}>
+                  <IconButton
+                    onClick={() => handleLike(video._id)}
+                    sx={{ color: 'white' }}
+                  >
+                    {isLiked ? (
+                      <FavoriteIcon sx={{ fontSize: 28, color: 'red' }} />
+                    ) : (
+                      <FavoriteBorderIcon sx={{ fontSize: 28 }} />
+                    )}
+                  </IconButton>
+                  <Typography variant="body2">
+                    {video.likesCount || video.likes.length || 0}
+                  </Typography>
+                </Box>
+
+                <Box sx={{ textAlign: 'center' }}>
+                  <IconButton
+                    onClick={() => handleShowComments(video)}
+                    sx={{ color: 'white' }}
+                  >
+                    <ChatBubbleOutlineIcon sx={{ fontSize: 28 }} />
+                  </IconButton>
+                  <Typography variant="body2">
+                    {video.comments?.length || 0}
+                  </Typography>
+                </Box>
+
+                <Box sx={{ textAlign: 'center' }}>
+                  <IconButton sx={{ color: 'white' }}>
+                    <IosShareIcon sx={{ fontSize: 28 }} />
+                  </IconButton>
+                </Box>
+              </Box>
+            </Box>
+          </Box>
+        );
+      })}
 
       {/* Comments Modal */}
       <Modal open={!!selectedVideo} onClose={handleCloseComments}>
