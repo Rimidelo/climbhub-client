@@ -114,6 +114,7 @@ const styles = {
         height: '100%',
         zIndex: 0,
         pointerEvents: 'none', // Allows clicks to pass through to underlying elements
+        opacity: '0.9'
     },
     labelText: (color) => ({
         position: 'relative',
