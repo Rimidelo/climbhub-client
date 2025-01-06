@@ -258,7 +258,7 @@ const Profile = () => {
             <Button
               variant="outlined"
               sx={{ mr: 1 }}
-              startIcon={<EditIcon />}
+              endIcon={<EditIcon />}
               onClick={handleEditProfileOpen}
             >
               Edit Profile
