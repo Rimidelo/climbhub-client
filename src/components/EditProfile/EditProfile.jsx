@@ -115,7 +115,7 @@ const EditProfile = ({ open, handleClose, currentProfile }) => {
             {success}
           </Alert>
         )}
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} style={{marginTop: 8}}>
           <Grid container spacing={3}>
             {/* Skill Level Selection */}
             <Grid item xs={12}>
