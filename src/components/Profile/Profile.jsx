@@ -305,42 +305,92 @@ const Profile = () => {
               <AnimatedChip label={profile.skillLevel || 'N/A'} />
             </Box>
 
-            {/* Favorite Gyms */}
-            {/* Favorite Gyms */}
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
                 Favorite Gyms
               </Typography>
               {profile.gyms && profile.gyms.length > 0 ? (
-                <Stack direction="row" spacing={1} flexWrap="wrap">
-                  {profile.gyms.map((gym) => (
-                    gymImages[gym.name] ? (
-                      <Avatar
+                <Stack direction="row" spacing={2} flexWrap="wrap">
+                  {profile.gyms.map((gym) => {
+                    const gymData = gymImages[gym.name];
+                    const gradientBorder = `linear-gradient(45deg, ${gymData.neon}, #ff00ff, #00ffff)`;
+                    return gymData?.image ? (
+                      // Gym with image
+                      <Box
                         key={gym._id}
-                        alt={gym.name}
-                        src={gymImages[gym.name]}
-                        sx={{ width: 60, height: 60 }} // Adjust size as needed
-                        onError={(e) => {
-                          console.error(`Error loading image for ${gym.name}:`, e);
-                          e.target.onerror = null; // Prevents infinite loop if placeholder fails
-                          e.target.src = '/images/placeholder.png'; // Path to your placeholder image
+                        sx={{
+                          width: 65,
+                          height: 65,
+                          borderRadius: '20%',
+                          overflow: 'hidden',
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          position: 'relative',
+                          background: gradientBorder, // Apply gradient border
                         }}
-                      />
+                      >
+                        <Box
+                          component="img"
+                          src={gymData.image}
+                          alt={gym.name}
+                          sx={{
+                            width: '100%',
+                            height: '100%',
+                            borderRadius: '20%',
+                            objectFit: 'fit',
+                          }}
+                          onError={(e) => {
+                            console.error(`Error loading image for ${gym.name}:`, e);
+                            e.target.onerror = null;
+                            e.target.src = '/images/placeholder.png';
+                          }}
+                        />
+                      </Box>
                     ) : (
-                      <Chip
+                      // Gym without image
+                      <Box
                         key={gym._id}
-                        label={gym.name}
-                        variant="outlined"
-                        sx={{ mb: 1 }}
-                      />
-                    )
-                  ))}
+                        sx={{
+                          width: 65,
+                          height: 65,
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          borderRadius: '20%',
+                          background: gradientBorder, // Apply gradient border
+                          padding: '5px', // Space for border
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            width: '100%',
+                            height: '100%',
+                            borderRadius: '20%',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <Typography
+                            sx={{
+                              color: '#333',
+                              fontWeight: 'bold',
+                              fontSize: 10,
+                              textAlign: 'center',
+                            }}
+                          >
+                            {gym.name}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    );
+                  })}
                 </Stack>
               ) : (
                 <Typography variant="body2">No gyms specified.</Typography>
               )}
             </Box>
-
           </Box>
         </Grid>
       </Grid>

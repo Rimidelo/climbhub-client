@@ -1,41 +1,40 @@
-// src/data/gymImages.js
-import Isaac from '../images/Isaac.png'
+import Isaac from '../images/Isaac.png';
+import Gecko from '../images/Gecko Kir Shagai.png';
 
 const gymImages = {
-    "Gecko Kir Shagai": "https://www.geckoclimbing.co.il/images/gecko_kir_shagai.jpg",
-    "Venga": "https://www.vengavenga.co.il/images/venga.jpg",
-    "Urban Climbing Rehovot": "https://www.uclimb.co.il/images/urban_climbing_rehovot.jpg",
-    "Urban Climbing Jerusalem": "https://www.uclimb.co.il/images/urban_climbing_jerusalem.jpg",
-    "Monkeys": "https://www.monkeysclimbinggym.co.il/images/monkeys.jpg",
-    "Performance Rock Be'er Sheva": "https://performancerock.co.il/images/performance_rock_beersheba.jpg",
-    "Performance Rock Tel Aviv": "https://performancerock.co.il/images/performance_rock_telaviv.jpg",
-    "Campus": "https://www.campuswall.co.il/images/campus.jpg",
-    "Shachatipus": "https://www.boulder-problem.com/images/shachatipus.jpg",
-    "The Bloc": "https://www.thebloc.co.il/images/the_bloc.jpg",
-    "Viking Tel Aviv": "https://vking.co.il/images/viking_telaviv.jpg",
-    "Viking Ra'anana": "https://vking.co.il/images/viking_raanana.jpg",
-    "Kir Yoav": "https://www.shafan-hasela.com/images/kir_yoav.jpg",
-    "Levin Climbing Center": "https://www.levinclimbing.co.il/images/levin_climbing_center.jpg",
-    "Kir Boaz": "https://example.com/images/kir_boaz.jpg", // Replace with actual URL or leave out if no image
-    "Rog’um Climbing and Nature Club": "https://rujum-ks.co.il/images/rojum_climbing_nature.jpg",
-    "Extreme Park": "https://www.shafan-hasela.com/images/extreme_park.jpg",
-    "Boulder Haifa": "https://www.boulder.co.il/images/boulder_haifa.jpg",
-    "Rookies": "https://example.com/images/rookies.jpg", // Replace with actual URL or leave out if no image
-    "Desert Climbing": "https://example.com/images/desert_climbing.jpg", // Replace with actual URL or leave out if no image
-    "iClimb Jerusalem": "https://iclimb.co.il/images/iclimb_jerusalem.jpg",
-    "iClimb Rishon LeZion": "https://iclimb.co.il/images/iclimb_rishonlezion.jpg",
-    "iClimb Tel Aviv": "https://iclimb.co.il/images/iclimb_telaviv.jpg",
-    "Bouldreland": "https://example.com/images/bouldreland.jpg", // Replace with actual URL or leave out if no image
-    "Kir HaOgen": "https://example.com/images/kir_haogen.jpg", // Replace with actual URL or leave out if no image
-    "Roka": "https://www.rocaclimb.co.il/images/roka.jpg",
-    "Totem Climbing Wall": "https://www.totemclimbing.co.il/images/totem_climbing_wall.jpg",
-    "Performance Rock Regev": "https://performancerock.co.il/branch/regba/images/performance_rock_regba.jpg",
-    "Performance Rock Haifa": "https://performancerock.co.il/branch/haifa/images/performance_rock_haifa.jpg",
-    "Performance Rock Modi'in": "https://performancerock.co.il/branch/modiin/images/performance_rock_modiin.jpg",
-    "iClimb Kiryat Gat": "https://iclimb.co.il/images/iclimb_kiryatgat.jpg",
-    "Ninja Park": "https://www.ninja-parks.co.il/images/ninja_park.jpg",
-    "Isaac Club": Isaac
-  };
-  
-  export default gymImages;
-  
+  "Gecko Kir Shagai": { image: Gecko, neon: '#ff00ff' }, // Magenta
+  "Venga": { image: null, neon: '#00ffff' }, // Cyan
+  "Urban Climbing Rehovot": { image: null, neon: '#ff9900' }, // Orange
+  "Urban Climbing Jerusalem": { image: null, neon: '#00ff00' }, // Lime
+  "Monkeys": { image: null, neon: '#ff0000' }, // Red
+  "Performance Rock Be'er Sheva": { image: null, neon: '#0000ff' }, // Blue
+  "Performance Rock Tel Aviv": { image: null, neon: '#ffff00' }, // Yellow
+  "Campus": { image: null, neon: '#ff1493' }, // Deep Pink
+  "Shachatipus": { image: null, neon: '#32cd32' }, // Lime Green
+  "The Bloc": { image: null, neon: '#ffa500' }, // Orange
+  "Viking Tel Aviv": { image: null, neon: '#00ced1' }, // Dark Turquoise
+  "Viking Ra'anana": { image: null, neon: '#1e90ff' }, // Dodger Blue
+  "Kir Yoav": { image: null, neon: '#9400d3' }, // Dark Violet
+  "Levin Climbing Center": { image: null, neon: '#ff6347' }, // Tomato
+  "Kir Boaz": { image: null, neon: '#7fff00' }, // Chartreuse
+  "Rog’um Climbing and Nature Club": { image: null, neon: '#00ff7f' }, // Spring Green
+  "Extreme Park": { image: null, neon: '#8a2be2' }, // Blue Violet
+  "Boulder Haifa": { image: null, neon: '#ff4500' }, // Orange Red
+  "Rookies": { image: null, neon: '#48d1cc' }, // Medium Turquoise
+  "Desert Climbing": { image: null, neon: '#dc143c' }, // Crimson
+  "iClimb Jerusalem": { image: null, neon: '#00bfff' }, // Deep Sky Blue
+  "iClimb Rishon LeZion": { image: null, neon: '#9932cc' }, // Dark Orchid
+  "iClimb Tel Aviv": { image: null, neon: '#ffa07a' }, // Light Salmon
+  "Bouldreland": { image: null, neon: '#20b2aa' }, // Light Sea Green
+  "Kir HaOgen": { image: null, neon: '#ff69b4' }, // Hot Pink
+  "Roka": { image: null, neon: '#ff8c00' }, // Dark Orange
+  "Totem Climbing Wall": { image: null, neon: '#00fa9a' }, // Medium Spring Green
+  "Performance Rock Regev": { image: null, neon: '#ba55d3' }, // Medium Orchid
+  "Performance Rock Haifa": { image: null, neon: '#7b68ee' }, // Medium Slate Blue
+  "Performance Rock Modi'in": { image: null, neon: '#87ceeb' }, // Sky Blue
+  "iClimb Kiryat Gat": { image: null, neon: '#ffdead' }, // Navajo White
+  "Ninja Park": { image: null, neon: '#ff1493' }, // Deep Pink
+  "Isaac Club": { image: Isaac, neon: '#adff2f' }, // Green Yellow
+};
+
+export default gymImages;
