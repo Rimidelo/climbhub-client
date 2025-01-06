@@ -27,8 +27,10 @@ import {
 import SettingsIcon from '@mui/icons-material/Settings';
 import VideoPopup from '../VideoPopup/VideoPopup';
 import EditIcon from '@mui/icons-material/Edit';
-
+import gymImages from '../../assets/data/gymImages';
 import EditProfile from '../EditProfile/EditProfile'; // Import the EditProfile component
+console.log(gymImages);
+
 
 const Profile = () => {
   const { user, handleLogout } = useContext(UserContext);
@@ -311,7 +313,27 @@ const Profile = () => {
               {profile.gyms && profile.gyms.length > 0 ? (
                 <Stack direction="row" spacing={1} flexWrap="wrap">
                   {profile.gyms.map((gym) => (
-                    <Chip key={gym._id} label={gym.name} variant="outlined" />
+                    <Chip
+                      key={gym._id}
+                      label={gym.name}
+                      variant="outlined"
+                      avatar={
+                        gymImages[gym.name] ? (
+                          <Avatar
+                            alt={gym.name}
+                            src={gymImages[gym.name]}
+                            sx={{ width: 24, height: 24 }}
+                            onError={(e) => {
+                              console.log(e);
+                              
+                              e.target.onerror = null; // Prevents infinite loop if placeholder fails
+                              e.target.src = '/images/placeholder.png'; // Path to your placeholder image
+                            }}
+                          />
+                        ) : null
+                      }
+                      sx={{ mb: 1 }}
+                    />
                   ))}
                 </Stack>
               ) : (
