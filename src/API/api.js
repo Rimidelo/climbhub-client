@@ -163,5 +163,15 @@ export const uploadProfileImage = async (userId, file) => {
   }
 };
 
+export const updateProfile = async (profileId, updatedData) => {
+  try {
+    const response = await axios.put(`${API_URL}/profile/${profileId}`, updatedData);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    throw error;
+  }
+};
+
 
 

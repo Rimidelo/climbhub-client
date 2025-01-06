@@ -1,3 +1,5 @@
+// src/components/Profile/Profile.jsx
+
 import React, { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import {
@@ -26,6 +28,8 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import VideoPopup from '../VideoPopup/VideoPopup';
 import EditIcon from '@mui/icons-material/Edit';
 
+import EditProfile from '../EditProfile/EditProfile'; // Import the EditProfile component
+
 const Profile = () => {
   const { user, handleLogout } = useContext(UserContext);
   const [profile, setProfile] = useState(null);
@@ -35,24 +39,25 @@ const Profile = () => {
   const [, setError] = useState('');
   const [anchorEl, setAnchorEl] = useState(null); // State for settings menu
   const [hovered, setHovered] = useState(false);
+  const [editProfileOpen, setEditProfileOpen] = useState(false); // State for EditProfile modal
+
+  // Fetch profile data
+  const fetchProfileData = async () => {
+    try {
+      const profileData = await getUserProfile(user._id);
+      const userVideos = await getVideosByProfile(profileData._id) || [];
+      setProfile(profileData);
+      setVideos(userVideos);
+    } catch (error) {
+      console.error('Error fetching profile data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchProfileData = async () => {
-      try {
-        const profileData = await getUserProfile(user._id);
-        const userVideos = await getVideosByProfile(profileData._id) || []; // <-- Ensure an array
-        setProfile(profileData);
-        setVideos(userVideos); // even if no videos, this will be []
-      } catch (error) {
-        console.error('Error fetching profile data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     if (user) fetchProfileData();
   }, [user]);
-
 
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
@@ -60,8 +65,7 @@ const Profile = () => {
 
     try {
       await uploadProfileImage(user._id, file); // Upload the image
-      const updatedProfile = await getUserProfile(user._id); // Fetch the updated profile
-      setProfile(updatedProfile); // Update the profile state with the latest data
+      await fetchProfileData(); // Refresh profile data
     } catch (error) {
       console.error('Error uploading profile image:', error);
     }
@@ -88,6 +92,19 @@ const Profile = () => {
   };
   const handleMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  // Handle opening the EditProfile modal
+  const handleEditProfileOpen = () => {
+    setEditProfileOpen(true);
+  };
+
+  // Handle closing the EditProfile modal
+  const handleEditProfileClose = (updated) => {
+    setEditProfileOpen(false);
+    if (updated) {
+      fetchProfileData(); // Refresh profile data if updated
+    }
   };
 
   if (loading) {
@@ -236,7 +253,12 @@ const Profile = () => {
             {profile?.user?.name || 'Anonymous User'}
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Button variant="outlined" sx={{ mr: 1 }}>
+            <Button
+              variant="outlined"
+              sx={{ mr: 1 }}
+              startIcon={<EditIcon />}
+              onClick={handleEditProfileOpen}
+            >
               Edit Profile
             </Button>
             <IconButton onClick={handleMenuOpen}>
@@ -281,14 +303,13 @@ const Profile = () => {
               <AnimatedChip label={profile.skillLevel || 'N/A'} />
             </Box>
 
-
             {/* Favorite Gyms */}
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
                 Favorite Gyms
               </Typography>
               {profile.gyms && profile.gyms.length > 0 ? (
-                <Stack direction="row" spacing={1}>
+                <Stack direction="row" spacing={1} flexWrap="wrap">
                   {profile.gyms.map((gym) => (
                     <Chip key={gym._id} label={gym.name} variant="outlined" />
                   ))}
@@ -336,9 +357,7 @@ const Profile = () => {
         </Grid>
       ) : (
         <Box sx={{ textAlign: 'center', mt: 2 }}>
-          <Typography variant="body1">
-            No videos yet.
-          </Typography>
+          <Typography variant="body1">No videos yet.</Typography>
         </Box>
       )}
 
@@ -358,6 +377,13 @@ const Profile = () => {
         handleLike={handleLike}
         setError={setError}
         user={user}
+      />
+
+      {/* Edit Profile Modal */}
+      <EditProfile
+        open={editProfileOpen}
+        handleClose={handleEditProfileClose}
+        currentProfile={profile}
       />
     </Box>
   );
