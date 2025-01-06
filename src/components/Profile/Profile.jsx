@@ -306,6 +306,7 @@ const Profile = () => {
             </Box>
 
             {/* Favorite Gyms */}
+            {/* Favorite Gyms */}
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
                 Favorite Gyms
@@ -313,33 +314,33 @@ const Profile = () => {
               {profile.gyms && profile.gyms.length > 0 ? (
                 <Stack direction="row" spacing={1} flexWrap="wrap">
                   {profile.gyms.map((gym) => (
-                    <Chip
-                      key={gym._id}
-                      label={gym.name}
-                      variant="outlined"
-                      avatar={
-                        gymImages[gym.name] ? (
-                          <Avatar
-                            alt={gym.name}
-                            src={gymImages[gym.name]}
-                            sx={{ width: 24, height: 24 }}
-                            onError={(e) => {
-                              console.log(e);
-                              
-                              e.target.onerror = null; // Prevents infinite loop if placeholder fails
-                              e.target.src = '/images/placeholder.png'; // Path to your placeholder image
-                            }}
-                          />
-                        ) : null
-                      }
-                      sx={{ mb: 1 }}
-                    />
+                    gymImages[gym.name] ? (
+                      <Avatar
+                        key={gym._id}
+                        alt={gym.name}
+                        src={gymImages[gym.name]}
+                        sx={{ width: 60, height: 60 }} // Adjust size as needed
+                        onError={(e) => {
+                          console.error(`Error loading image for ${gym.name}:`, e);
+                          e.target.onerror = null; // Prevents infinite loop if placeholder fails
+                          e.target.src = '/images/placeholder.png'; // Path to your placeholder image
+                        }}
+                      />
+                    ) : (
+                      <Chip
+                        key={gym._id}
+                        label={gym.name}
+                        variant="outlined"
+                        sx={{ mb: 1 }}
+                      />
+                    )
                   ))}
                 </Stack>
               ) : (
                 <Typography variant="body2">No gyms specified.</Typography>
               )}
             </Box>
+
           </Box>
         </Grid>
       </Grid>
