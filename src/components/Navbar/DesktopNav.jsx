@@ -15,6 +15,7 @@ import SlideshowIcon from '@mui/icons-material/Slideshow';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'; // <--- NEW ICON
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/climbhublogo.png';
+import FitnessCenterIcon from '@mui/icons-material/FitnessCenter'
 
 const drawerWidth = 240; // Adjust width to taste
 
@@ -92,13 +93,13 @@ function DesktopNav() {
                         </ListItemButton>
                     </ListItem>
 
-                    {/* Upload Video */}
+                    {/* Gyms */}
                     <ListItem disablePadding>
-                        <ListItemButton onClick={() => navigate('/video-upload')}>
+                        <ListItemButton onClick={() => navigate('/gyms-with-videos')}>
                             <ListItemIcon>
-                                <VideoCallIcon />
+                                <FitnessCenterIcon /> {/* Use Gyms Icon */}
                             </ListItemIcon>
-                            <ListItemText primary="Upload Video" />
+                            <ListItemText primary="Gyms" />
                         </ListItemButton>
                     </ListItem>
 
@@ -109,6 +110,16 @@ function DesktopNav() {
                                 <AccountCircleIcon /> {/* Use Profile Icon */}
                             </ListItemIcon>
                             <ListItemText primary="Profile" />
+                        </ListItemButton>
+                    </ListItem>
+
+                    {/* Upload Video */}
+                    <ListItem disablePadding>
+                        <ListItemButton onClick={() => navigate('/video-upload')}>
+                            <ListItemIcon>
+                                <VideoCallIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Upload Video" />
                         </ListItemButton>
                     </ListItem>
                 </List>
