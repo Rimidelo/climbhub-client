@@ -158,7 +158,8 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
     const [showAddComment, setShowAddComment] = useState(false); // Toggle for "Add a comment"
     const [showAllComments, setShowAllComments] = useState(false); // Toggle for "View all comments"
     const videoRef = useRef(null);
-
+    console.log(comments);
+    
     const colorGradingMap = {
         "Pink": "#FFC0CB",
         "Green": "#008000",
@@ -326,8 +327,8 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
                         <Avatar
                             sx={{ mr: 2, width: 32, height: 32 }}
                             alt={comment.profile?.user?.name}
+                            src={comment.profile?.user?.image}
                         >
-                            {comment.profile?.user?.name?.charAt(0).toUpperCase()}
                         </Avatar>
                         <Typography variant="body2" sx={{ flexGrow: 1 }}>
                             <strong>{comment.profile?.user?.name}:</strong> {comment.text}
