@@ -16,6 +16,7 @@ import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import IosShareIcon from '@mui/icons-material/IosShare';
 import { UserContext } from '../../contexts/UserContext';
 import { getVideosByPreferences, getComments, toggleLike, addComment } from '../../API/api';
+import AnimatedChip from '../AnimatedChip/AnimatedChip'
 
 // Define color mapping for grading system
 const colorGradingMap = {
@@ -200,7 +201,8 @@ const Reels = () => {
 
       {videos.map((video, index) => {
         const isLiked = user && video.likes.includes(user._id);
-
+        console.log(videos);
+        
         return (
           <Paper
             key={video._id || index}
@@ -227,6 +229,26 @@ const Reels = () => {
                 justifyContent: 'center',
               }}
             >
+
+              {/* Skill Level Chip */}
+              {video.profile?.skillLevel && (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: 16,
+                    left: 16,
+                    zIndex: 10, // Ensure it is above the video
+                  }}
+                >
+                  <AnimatedChip
+                    label={video.profile.skillLevel} // Use the skill level from user profile
+                    textColor="#fff"
+                    width={100}
+                    height={30}
+                  />
+                </Box>
+              )}
+
               {/* Grading Indicator */}
               {video.gradingSystem === "Japanese-Colored" && colorGradingMap[video.difficultyLevel] ? (
                 <Box
