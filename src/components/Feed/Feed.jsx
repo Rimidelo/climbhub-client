@@ -19,6 +19,8 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import AnimatedChip from '../AnimatedChip/AnimatedChip';
+
 dayjs.extend(relativeTime);
 
 const Feed = () => {
@@ -159,7 +161,7 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
     const [showAllComments, setShowAllComments] = useState(false); // Toggle for "View all comments"
     const videoRef = useRef(null);
     console.log(comments);
-    
+
     const colorGradingMap = {
         "Pink": "#FFC0CB",
         "Green": "#008000",
@@ -307,10 +309,18 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
             </Box>
 
             {/* Description Section */}
-            <Box sx={{ px: 2 }}>
-                <Typography variant="body2" sx={{ fontWeight: 600, mb: 3 }}>
+            <Box sx={{ px: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>
                     {video.description}
                 </Typography>
+                {video.profile?.skillLevel && (
+                    <AnimatedChip
+                        label={video.profile?.skillLevel}
+                        textColor="#fff"
+                        width={100}
+                        height={30}
+                    />
+                )}
             </Box>
 
             {/* Comments Section */}
