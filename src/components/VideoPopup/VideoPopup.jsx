@@ -89,6 +89,7 @@ const VideoPopup = ({ open, onClose, video, user }) => {
   // Mobile Comments Overlay
   const openCommentsOverlay = () => setIsCommentsOpen(true);
   const closeCommentsOverlay = () => setIsCommentsOpen(false);
+  console.log(comments);
   
 
   const handleAddComment = async (commentText) => {
@@ -281,7 +282,7 @@ const VideoPopup = ({ open, onClose, video, user }) => {
                 gap: 1,
               }}
             >
-              <CommentsOverlay.AddCommentInput onAddComment={handleAddComment} onClick={(e) => e.stopPropagation()} />
+              <CommentsOverlay.AddCommentInput onAddComment={handleAddComment} />
             </Box>
           </Box>
         )}
