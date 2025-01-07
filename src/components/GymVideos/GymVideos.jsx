@@ -197,14 +197,14 @@ const GymVideos = () => {
                                     colorGradingMap[video.difficultyLevel] ? (
                                     <Box
                                         sx={{
-                                            width: 16,
-                                            height: 16,
+                                            width: 40,
+                                            height: 20,
                                             backgroundColor: colorGradingMap[video.difficultyLevel],
-                                            borderRadius: "50%",
                                         }}
                                     />
-                                ) : null}
-                                {video.difficultyLevel}
+                                ) : (
+                                    video.difficultyLevel
+                                )}
                             </Typography>
                         </Box>
                     </Grid>
