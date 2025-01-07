@@ -82,7 +82,6 @@ const VideoPopup = ({ open, onClose, video, user }) => {
 
   const handleDelete = async () => {
     await deleteVideo(video._id);
-    console.log('Delete video with ID:', video._id);
     handleMenuClose();
     onClose();
   };
@@ -90,6 +89,7 @@ const VideoPopup = ({ open, onClose, video, user }) => {
   // Mobile Comments Overlay
   const openCommentsOverlay = () => setIsCommentsOpen(true);
   const closeCommentsOverlay = () => setIsCommentsOpen(false);
+  
 
   const handleAddComment = async (commentText) => {
     if (!video || !commentText.trim()) return;
@@ -237,7 +237,7 @@ const VideoPopup = ({ open, onClose, video, user }) => {
                 comments.map((comment, i) => (
                   <Box key={i} sx={{ display: 'flex', mb: 2 }}>
                     <Avatar
-                      src={comment.profile?.profilePicture}
+                      src={comment.profile?.user?.image}
                       alt={comment.profile?.user?.name}
                       sx={{ width: 32, height: 32, mr: 1 }}
                     />

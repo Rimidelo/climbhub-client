@@ -8,7 +8,7 @@ import {
   TextField,
   MenuItem,
 } from "@mui/material";
-import { getVideosByGym } from "../../API/api"; // Import the new API call
+import { getVideosByGym, toggleLike, getComments, addComment } from "../../API/api"; // Import necessary API calls
 import VideoPopup from "../VideoPopup/VideoPopup";
 
 const GymVideos = () => {
@@ -17,11 +17,13 @@ const GymVideos = () => {
   const [loading, setLoading] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [filter, setFilter] = useState("");
+  const [comments, setComments] = useState([]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const videosData = await getVideosByGym(gymId); // Use the new API call
+        const videosData = await getVideosByGym(gymId);
         setVideos(videosData);
       } catch (error) {
         console.error("Error fetching videos:", error);
@@ -32,6 +34,43 @@ const GymVideos = () => {
 
     fetchVideos();
   }, [gymId]);
+
+  const handleLike = async (videoId) => {
+    try {
+      await toggleLike(videoId);
+      setVideos((prevVideos) =>
+        prevVideos.map((video) =>
+          video._id === videoId
+            ? { ...video, likesCount: video.likesCount + 1 }
+            : video
+        )
+      );
+    } catch (err) {
+      console.error("Error toggling like:", err);
+      setError("Failed to toggle like.");
+    }
+  };
+
+  const fetchComments = async (videoId) => {
+    try {
+      const commentsData = await getComments(videoId);
+      setComments(commentsData);
+    } catch (err) {
+      console.error("Error fetching comments:", err);
+      setError("Failed to fetch comments.");
+    }
+  };
+
+  const handleAddComment = async (videoId, text) => {
+    try {
+      await addComment(videoId, text);
+      const updatedComments = await getComments(videoId);
+      setComments(updatedComments);
+    } catch (err) {
+      console.error("Error adding comment:", err);
+      setError("Failed to add comment.");
+    }
+  };
 
   const filteredVideos = videos.filter((video) =>
     video.difficultyLevel.toLowerCase().includes(filter.toLowerCase())
@@ -82,7 +121,10 @@ const GymVideos = () => {
                   opacity: 0.8,
                 },
               }}
-              onClick={() => setSelectedVideo(video)}
+              onClick={() => {
+                setSelectedVideo(video);
+                fetchComments(video._id);
+              }}
             >
               <video
                 src={video.videoUrl}
@@ -117,6 +159,10 @@ const GymVideos = () => {
           open={!!selectedVideo}
           onClose={() => setSelectedVideo(null)}
           video={selectedVideo}
+          handleLike={handleLike}
+          setError={setError}
+          comments={comments}
+          handleAddComment={handleAddComment}
         />
       )}
     </Box>

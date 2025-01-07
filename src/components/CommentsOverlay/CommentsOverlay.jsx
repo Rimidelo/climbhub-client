@@ -78,7 +78,7 @@ const CommentsOverlay = ({
                     comments.map((comment, index) => (
                         <Box key={index} sx={{ display: 'flex', gap: 1 }}>
                             <Avatar
-                                src={comment.profile?.profilePicture}
+                                src={comment.profile?.user?.image}
                                 alt={comment.profile?.user?.name}
                                 sx={{ width: 32, height: 32 }}
                             />
