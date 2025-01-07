@@ -17,6 +17,9 @@ import IosShareIcon from '@mui/icons-material/IosShare';
 import { UserContext } from '../../contexts/UserContext';
 import { getVideosByPreferences, getComments, toggleLike, addComment } from '../../API/api';
 import AnimatedChip from '../AnimatedChip/AnimatedChip'
+import PauseCircleIcon from '@mui/icons-material/PauseCircle';
+import PlayCircleIcon from '@mui/icons-material/PlayCircle';
+
 
 // Define color mapping for grading system
 const colorGradingMap = {
@@ -40,6 +43,8 @@ const Reels = () => {
   const [error, setError] = useState('');
   const [selectedVideo, setSelectedVideo] = useState(null); // For comments modal
   const [commentText, setCommentText] = useState(''); // New comment input
+  const [paused, setPaused] = useState({});
+  const [showStatusIcon, setShowStatusIcon] = useState({});
   const videoRefs = useRef([]);
 
   useEffect(() => {
@@ -103,6 +108,21 @@ const Reels = () => {
       observer.disconnect();
     };
   }, [videos]);
+
+  const handleTogglePlayPause = (index) => {
+    const video = videoRefs.current[index];
+    if (video) {
+      if (paused[index]) {
+        video.play();
+        setShowStatusIcon({ [index]: 'play' });
+      } else {
+        video.pause();
+        setShowStatusIcon({ [index]: 'pause' });
+      }
+      setPaused((prev) => ({ ...prev, [index]: !prev[index] }));
+      setTimeout(() => setShowStatusIcon({ [index]: null }), 1000); // Hide icon after 1 second
+    }
+  };
 
   const handleLike = async (videoId) => {
     if (!user || !user._id) {
@@ -202,7 +222,7 @@ const Reels = () => {
       {videos.map((video, index) => {
         const isLiked = user && video.likes.includes(user._id);
         console.log(videos);
-        
+
         return (
           <Paper
             key={video._id || index}
@@ -216,6 +236,7 @@ const Reels = () => {
               position: 'relative',
               bgcolor: 'black',
             }}
+            onClick={() => handleTogglePlayPause(index)}
           >
             <Box
               sx={{
@@ -280,12 +301,41 @@ const Reels = () => {
                 </Typography>
               )}
 
+              {/* Play/Pause Icons */}
+              {showStatusIcon[index] === 'pause' && (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    zIndex: 10,
+                    pointerEvents: 'none', // Ensure it doesn't block user clicks
+                  }}
+                >
+                  <PauseCircleIcon sx={{ fontSize: 60, color: 'white' }} />
+                </Box>
+              )}
+              {showStatusIcon[index] === 'play' && (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    zIndex: 10,
+                    pointerEvents: 'none', // Ensure it doesn't block user clicks
+                  }}
+                >
+                  <PlayCircleIcon sx={{ fontSize: 60, color: 'white' }} />
+                </Box>
+              )}
+
               {/* Video Element */}
               <video
                 ref={(el) => (videoRefs.current[index] = el)}
                 src={video.videoUrl}
                 loop
-                muted
                 playsInline
                 style={{
                   width: '100%',
@@ -334,7 +384,10 @@ const Reels = () => {
                 {/* Like Button */}
                 <Box sx={{ textAlign: 'center' }}>
                   <IconButton
-                    onClick={() => handleLike(video._id)}
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent click from toggling play/pause
+                      handleLike(video._id);
+                    }}
                     sx={{ color: 'white' }}
                   >
                     {isLiked ? (
@@ -351,7 +404,10 @@ const Reels = () => {
                 {/* Comment Button */}
                 <Box sx={{ textAlign: 'center' }}>
                   <IconButton
-                    onClick={() => handleShowComments(video)}
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent click from toggling play/pause
+                      handleShowComments(video);
+                    }}
                     sx={{ color: 'white' }}
                   >
                     <ChatBubbleOutlineIcon sx={{ fontSize: 28 }} />
