@@ -30,11 +30,13 @@ const AnimatedChip = ({
         backgroundColor = '#9b59b6'; // Purple for advanced
         boxShadow = '0px 4px 10px rgba(155, 89, 182, 0.5)';
         preserveAspectRatio = 'xMidYMid slice';
+         textColor = '#FCFFC1'
     } else if (label.toLowerCase() === 'intermediate') {
         animationData = fireAnimation;
         backgroundColor = '#e67e22'; // Orange for intermediate
         boxShadow = '0px 4px 10px rgba(230, 126, 34, 0.5)';
         preserveAspectRatio = 'xMidYMax slice';
+        textColor = 'black'
     } else {
         // Handle unexpected labels
         animationData = showAnimation; // Default to beginner animation
