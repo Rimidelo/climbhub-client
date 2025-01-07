@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
 import {
     Box,
@@ -10,6 +10,8 @@ import {
 } from "@mui/material";
 import { getVideosByGym, toggleLike, getComments, addComment } from "../../API/api"; // Import necessary API calls
 import VideoPopup from "../VideoPopup/VideoPopup";
+import { UserContext } from '../../contexts/UserContext';
+
 
 const GymVideos = () => {
     const { gymId } = useParams();
@@ -20,6 +22,7 @@ const GymVideos = () => {
     const [colorFilter, setColorFilter] = useState(""); // Filter for Japanese-Colored
     const [comments, setComments] = useState([]);
     const [error, setError] = useState("");
+    const { user } = useContext(UserContext);
 
     const colorGradingMap = {
         Pink: "#FFC0CB",
@@ -50,7 +53,7 @@ const GymVideos = () => {
 
     const handleLike = async (videoId) => {
         try {
-            await toggleLike(videoId);
+            await toggleLike(videoId, user._id);
             setVideos((prevVideos) =>
                 prevVideos.map((video) =>
                     video._id === videoId
@@ -59,8 +62,8 @@ const GymVideos = () => {
                 )
             );
         } catch (err) {
-            console.error("Error toggling like:", err);
-            setError("Failed to toggle like.");
+            console.error('Error toggling like:', err);
+            setError('Failed to toggle like.');
         }
     };
 
@@ -219,6 +222,7 @@ const GymVideos = () => {
                     setError={setError}
                     comments={comments}
                     handleAddComment={handleAddComment}
+                    user={user}
                 />
             )}
         </Box>

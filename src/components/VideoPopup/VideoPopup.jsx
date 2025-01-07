@@ -281,7 +281,7 @@ const VideoPopup = ({ open, onClose, video, user }) => {
                 gap: 1,
               }}
             >
-              <CommentsOverlay.AddCommentInput onAddComment={handleAddComment} />
+              <CommentsOverlay.AddCommentInput onAddComment={handleAddComment} onClick={(e) => e.stopPropagation()} />
             </Box>
           </Box>
         )}
