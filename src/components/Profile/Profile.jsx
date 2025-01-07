@@ -1,6 +1,6 @@
 // src/components/Profile/Profile.jsx
 
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import {
   getUserProfile,
@@ -20,7 +20,6 @@ import {
   IconButton,
   Menu,
   MenuItem,
-  Chip,
   Stack,
 } from '@mui/material';
 
@@ -43,11 +42,11 @@ const Profile = () => {
   const [hovered, setHovered] = useState(false);
   const [editProfileOpen, setEditProfileOpen] = useState(false); // State for EditProfile modal
 
-  // Fetch profile data
-  const fetchProfileData = async () => {
+  // Wrap fetchProfileData in useCallback
+  const fetchProfileData = useCallback(async () => {
     try {
       const profileData = await getUserProfile(user._id);
-      const userVideos = await getVideosByProfile(profileData._id) || [];
+      const userVideos = (await getVideosByProfile(profileData._id)) || [];
       setProfile(profileData);
       setVideos(userVideos);
     } catch (error) {
@@ -55,11 +54,11 @@ const Profile = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     if (user) fetchProfileData();
-  }, [user]);
+  }, [user, fetchProfileData]);
 
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];

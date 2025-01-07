@@ -318,7 +318,7 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
                         label={video.profile?.skillLevel}
                         textColor="#fff"
                         width={100}
-                        height={30}
+                        height={25}
                     />
                 )}
             </Box>
