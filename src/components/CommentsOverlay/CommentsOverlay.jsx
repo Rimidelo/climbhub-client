@@ -32,7 +32,10 @@ const CommentsOverlay = ({
     return (
         <Dialog
             open={open}
-            onClose={onClose}
+            onClose={(e) => {
+                e.stopPropagation(); // Prevent bubbling to VideoPopup
+                onClose(); // Close the CommentsOverlay
+            }}
             fullScreen={!isDesktop}
             PaperProps={{
                 sx: {
@@ -103,6 +106,7 @@ const CommentsOverlay = ({
                     display: 'flex',
                     gap: 1,
                 }}
+                onClick={(e) => e.stopPropagation()}
             >
                 <CommentsOverlay.AddCommentInput onAddComment={handleAddComment} />
             </Box>

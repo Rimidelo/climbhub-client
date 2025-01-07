@@ -89,8 +89,8 @@ const VideoPopup = ({ open, onClose, video, user }) => {
   // Mobile Comments Overlay
   const openCommentsOverlay = () => setIsCommentsOpen(true);
   const closeCommentsOverlay = () => setIsCommentsOpen(false);
-  console.log(comments);
   
+
 
   const handleAddComment = async (commentText) => {
     if (!video || !commentText.trim()) return;
@@ -129,7 +129,7 @@ const VideoPopup = ({ open, onClose, video, user }) => {
        * - Keep your X button exactly where it is.
        */}
       <Box
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()} 
         sx={{
           width: '100%',
           maxWidth: 1100,
@@ -205,7 +205,7 @@ const VideoPopup = ({ open, onClose, video, user }) => {
               <Typography variant="subtitle1" fontWeight="bold" sx={{ flexGrow: 1 }}>
                 {video.profile?.user?.name}
               </Typography>
-              <IconButton onClick={handleMenuOpen} sx={{ color: '#fff',marginRight: '2rem' }}>
+              <IconButton onClick={handleMenuOpen} sx={{ color: '#fff', marginRight: '2rem' }}>
                 <MoreHorizIcon />
               </IconButton>
               <Menu
@@ -333,7 +333,7 @@ const VideoPopup = ({ open, onClose, video, user }) => {
       {/* COMMENTS OVERLAY (Mobile) */}
       <CommentsOverlay
         open={isCommentsOpen}
-        onClose={closeCommentsOverlay}
+        onClose={closeCommentsOverlay} // Close only the overlay
         video={video}
         user={user}
         comments={comments}
