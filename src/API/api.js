@@ -36,15 +36,18 @@ export const getGyms = async () => {
   }
 };
 
-export const createProfile = async (profileData) => {
+export const getGymsWithVideos = async () => {
   try {
-    const response = await axios.post(`${API_URL}/profile`, profileData);
-    return response.data;
+    const response = await axios.get(`${API_URL}/gyms/gyms-with-videos`);
+    return response.data; // Array of gyms with videos
   } catch (error) {
-    console.error('Error creating profile:', error);
+    console.error('Error fetching gyms with videos:', error);
     throw error;
   }
 };
+
+
+
 
 // -------------------
 // Videos
@@ -134,10 +137,32 @@ export const getVideosByPreferences = async (userId) => {
   }
 };
 
+export const getVideosByGym = async (gymId) => {
+  try {
+    const response = await axios.get(`${API_URL}/videos/gym/${gymId}`);
+    return response.data; // Array of videos for the specified gym
+  } catch (error) {
+    console.error('Error fetching videos by gym:', error);
+    throw error;
+  }
+};
+
+
 
 // -------------------
 // Profile
 // -------------------
+
+export const createProfile = async (profileData) => {
+  try {
+    const response = await axios.post(`${API_URL}/profile`, profileData);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating profile:', error);
+    throw error;
+  }
+};
+
 export const getUserProfile = async (userId) => {
   try {
     const response = await axios.get(`${API_URL}/profile/${userId}`);

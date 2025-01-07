@@ -8,9 +8,11 @@ import RegisterPage from './components/Register/Register';
 import VideoUploder from './components/UploadVideo/UploadVideo';
 import Preferences from './components/Preferences/Preferences';
 import Feed from './components/Feed/Feed';
-import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'; // Import ProtectedRoute
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import Profile from './components/Profile/Profile';
 import Reels from './components/Reels/Reels';
+import GymsWithVideos from './components/GymsWithVideos/GymsWithVideos';
+import GymVideos from './components/GymVideos/GymVideos';
 
 function App() {
   return (
@@ -55,11 +57,27 @@ function App() {
                 </ProtectedRoute>
               }
             />
-          <Route
+            <Route
               path="/profile"
               element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/gyms-with-videos"
+              element={
+                <ProtectedRoute>
+                  <GymsWithVideos />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/gym/:gymId/videos"
+              element={
+                <ProtectedRoute>
+                  <GymVideos />
                 </ProtectedRoute>
               }
             />
