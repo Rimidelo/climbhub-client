@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import VideoCallIcon from '@mui/icons-material/VideoCall';
+import SlideshowIcon from '@mui/icons-material/Slideshow';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'; // <--- NEW ICON
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/climbhublogo.png';
@@ -78,6 +79,16 @@ function DesktopNav() {
                                 <HomeIcon />
                             </ListItemIcon>
                             <ListItemText primary="Home" />
+                        </ListItemButton>
+                    </ListItem>
+
+                    {/* Reels */}
+                    <ListItem disablePadding>
+                        <ListItemButton onClick={() => navigate('/reels')}>
+                            <ListItemIcon>
+                                <SlideshowIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Reels" />
                         </ListItemButton>
                     </ListItem>
 
