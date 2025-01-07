@@ -7,9 +7,10 @@ import {
     Dialog,
     useMediaQuery,
     useTheme,
+    TextField,
+    Button,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { TextField, Button } from '@mui/material';
 
 /**
  * A full-screen overlay for mobile to show all comments and allow new comments.
@@ -26,9 +27,6 @@ const CommentsOverlay = ({
     const theme = useTheme();
     const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
 
-    // We only want this to appear on mobile. On desktop, we might ignore it,
-    // but let's allow it to open if we wanted to (for demonstration).
-    // We'll make it a full-screen Dialog on small screens.
     return (
         <Dialog
             open={open}
@@ -41,7 +39,6 @@ const CommentsOverlay = ({
                 sx: {
                     backgroundColor: '#000',
                     color: '#fff',
-                    // For desktop, maybe limit the width
                     width: isDesktop ? 600 : '100%',
                     height: isDesktop ? '80vh' : '100%',
                 },
@@ -59,7 +56,14 @@ const CommentsOverlay = ({
                 <Typography variant="h6" sx={{ flexGrow: 1 }}>
                     Comments
                 </Typography>
-                <IconButton onClick={onClose} sx={{ color: '#fff' }}>
+                {/* Only the X button will close the CommentsOverlay */}
+                <IconButton
+                    onClick={(e) => {
+                        e.stopPropagation(); // Prevent bubbling to Dialog's onClose
+                        onClose(); // Close CommentsOverlay
+                    }}
+                    sx={{ color: '#fff' }}
+                >
                     <CloseIcon />
                 </IconButton>
             </Box>
@@ -106,7 +110,7 @@ const CommentsOverlay = ({
                     display: 'flex',
                     gap: 1,
                 }}
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()} // Prevent closing when interacting with AddCommentInput
             >
                 <CommentsOverlay.AddCommentInput onAddComment={handleAddComment} />
             </Box>

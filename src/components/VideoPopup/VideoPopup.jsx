@@ -89,7 +89,7 @@ const VideoPopup = ({ open, onClose, video, user }) => {
   // Mobile Comments Overlay
   const openCommentsOverlay = () => setIsCommentsOpen(true);
   const closeCommentsOverlay = () => setIsCommentsOpen(false);
-  
+
 
 
   const handleAddComment = async (commentText) => {
@@ -111,7 +111,10 @@ const VideoPopup = ({ open, onClose, video, user }) => {
      * - Clicking here closes the modal.
      */
     <Box
-      onClick={onClose}
+      onClick={(e) => {
+        if (isCommentsOpen) return; // Don't close if CommentsOverlay is open
+        onClose();
+      }}
       sx={{
         position: 'fixed',
         inset: 0,
@@ -123,13 +126,14 @@ const VideoPopup = ({ open, onClose, video, user }) => {
         p: 1,
       }}
     >
+
       {/**
        * INNER CONTAINER:
        * - Stop click events from bubbling up to the backdrop.
        * - Keep your X button exactly where it is.
        */}
       <Box
-        onClick={(e) => e.stopPropagation()} 
+        onClick={(e) => e.stopPropagation()}
         sx={{
           width: '100%',
           maxWidth: 1100,
@@ -333,7 +337,7 @@ const VideoPopup = ({ open, onClose, video, user }) => {
       {/* COMMENTS OVERLAY (Mobile) */}
       <CommentsOverlay
         open={isCommentsOpen}
-        onClose={closeCommentsOverlay} // Close only the overlay
+        onClose={() => setIsCommentsOpen(false)} // Close only the CommentsOverlay
         video={video}
         user={user}
         comments={comments}
