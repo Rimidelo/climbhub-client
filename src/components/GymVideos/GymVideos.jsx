@@ -21,7 +21,7 @@ const GymVideos = () => {
     const [vGradeFilter, setVGradeFilter] = useState(""); // Filter for V-Grading
     const [colorFilter, setColorFilter] = useState(""); // Filter for Japanese-Colored
     const [comments, setComments] = useState([]);
-    const [error, setError] = useState("");
+    const [,setError] = useState("");
     const { user } = useContext(UserContext);
 
     const colorGradingMap = {

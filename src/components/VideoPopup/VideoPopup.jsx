@@ -88,7 +88,7 @@ const VideoPopup = ({ open, onClose, video, user }) => {
 
   // Mobile Comments Overlay
   const openCommentsOverlay = () => setIsCommentsOpen(true);
-  const closeCommentsOverlay = () => setIsCommentsOpen(false);
+  // const closeCommentsOverlay = () => setIsCommentsOpen(false);
 
 
 
