@@ -4,6 +4,8 @@ import HomeIcon from '@mui/icons-material/Home';
 import PersonIcon from '@mui/icons-material/Person';
 import VideoCallIcon from '@mui/icons-material/VideoCall';  // <-- For upload icon
 import { useNavigate } from 'react-router-dom';
+import SlideshowIcon from '@mui/icons-material/Slideshow';
+import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 
 function MobileNav() {
   const [value, setValue] = useState(0);
@@ -30,10 +32,15 @@ function MobileNav() {
               navigate('/');
               break;
             case 1:
-              navigate('/video-upload');
+              navigate('/reels');
               break;
             case 2:
-              // Add your own profile route or logic here
+              navigate('/video-upload');
+              break;
+            case 3:
+              navigate('/gyms-with-videos');
+              break;
+            case 4:
               navigate('/profile');
               break;
             default:
@@ -41,13 +48,10 @@ function MobileNav() {
           }
         }}
       >
-        {/* Home */}
         <BottomNavigationAction label="Home" icon={<HomeIcon />} />
-
-        {/* Upload Video (replacing Search) */}
+        <BottomNavigationAction label="Reels" icon={<SlideshowIcon />} />
         <BottomNavigationAction label="Upload" icon={<VideoCallIcon />} />
-
-        {/* Profile */}
+        <BottomNavigationAction label="Gyms" icon={<FitnessCenterIcon />} />
         <BottomNavigationAction label="Profile" icon={<PersonIcon />} />
       </BottomNavigation>
     </Paper>
