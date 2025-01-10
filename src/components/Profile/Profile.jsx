@@ -21,31 +21,38 @@ import {
   Menu,
   MenuItem,
   Stack,
+  Tabs,            // <-- NEW
+  Tab,             // <-- NEW
 } from '@mui/material';
 
 import SettingsIcon from '@mui/icons-material/Settings';
 import VideoPopup from '../VideoPopup/VideoPopup';
 import EditIcon from '@mui/icons-material/Edit';
 import gymImages from '../../assets/data/gymImages';
-import EditProfile from '../EditProfile/EditProfile'; // Import the EditProfile component
-console.log(gymImages);
+import EditProfile from '../EditProfile/EditProfile';
 
+// Icons for the tabs
+import GridOnIcon from '@mui/icons-material/GridOn';           // <-- For "My Videos"
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder'; // <-- For "Saved Videos"
 
 const Profile = () => {
   const { user, handleLogout } = useContext(UserContext);
   const [profile, setProfile] = useState(null);
-  const [videos, setVideos] = useState([]);
+  const [videos, setVideos] = useState([]);       // "My Videos" (uploaded)
   const [loading, setLoading] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [, setError] = useState('');
-  const [anchorEl, setAnchorEl] = useState(null); // State for settings menu
+  const [anchorEl, setAnchorEl] = useState(null);
   const [hovered, setHovered] = useState(false);
-  const [editProfileOpen, setEditProfileOpen] = useState(false); // State for EditProfile modal
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
 
-  // Wrap fetchProfileData in useCallback
+  // NEW: Keep track of which tab is active: 0 => My Videos, 1 => Saved Videos
+  const [activeTab, setActiveTab] = useState(0);
+
   const fetchProfileData = useCallback(async () => {
     try {
       const profileData = await getUserProfile(user._id);
+      // The server populates "savedVideos," so profileData.savedVideos is available
       const userVideos = (await getVideosByProfile(profileData._id)) || [];
       setProfile(profileData);
       setVideos(userVideos);
@@ -65,8 +72,8 @@ const Profile = () => {
     if (!file) return;
 
     try {
-      await uploadProfileImage(user._id, file); // Upload the image
-      await fetchProfileData(); // Refresh profile data
+      await uploadProfileImage(user._id, file);
+      await fetchProfileData();
     } catch (error) {
       console.error('Error uploading profile image:', error);
     }
@@ -75,13 +82,9 @@ const Profile = () => {
   const handleLike = async (videoId) => {
     try {
       await toggleLike(videoId, user._id);
-      setVideos((prevVideos) =>
-        prevVideos.map((video) =>
-          video._id === videoId
-            ? { ...video, likesCount: video.likesCount + 1 }
-            : video
-        )
-      );
+      // Re-fetch or optimistically update
+      const updatedVideos = await getVideosByProfile(profile._id);
+      setVideos(updatedVideos);
     } catch (err) {
       console.error('Error toggling like:', err);
       setError('Failed to toggle like.');
@@ -95,16 +98,13 @@ const Profile = () => {
     setAnchorEl(null);
   };
 
-  // Handle opening the EditProfile modal
   const handleEditProfileOpen = () => {
     setEditProfileOpen(true);
   };
-
-  // Handle closing the EditProfile modal
   const handleEditProfileClose = (updated) => {
     setEditProfileOpen(false);
     if (updated) {
-      fetchProfileData(); // Refresh profile data if updated
+      fetchProfileData();
     }
   };
 
@@ -138,6 +138,51 @@ const Profile = () => {
     );
   }
 
+  // Renders a grid of videos (shared by "My Videos" and "Saved")
+  const renderVideoGrid = (videoList) => {
+    if (!videoList || videoList.length === 0) {
+      return (
+        <Box sx={{ textAlign: 'center', mt: 2 }}>
+          <Typography variant="body1">No videos yet.</Typography>
+        </Box>
+      );
+    }
+
+    return (
+      <Grid container spacing={1}>
+        {videoList.map((videoItem) => (
+          <Grid item xs={4} sm={4} md={4} key={videoItem._id}>
+            <Box
+              sx={{
+                width: '100%',
+                position: 'relative',
+                paddingTop: '100%', // square ratio
+                overflow: 'hidden',
+                cursor: 'pointer',
+                backgroundColor: '#000',
+              }}
+              onClick={() => setSelectedVideo(videoItem)}
+            >
+              <video
+                src={videoItem.videoUrl}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                }}
+                muted
+                playsInline
+              />
+            </Box>
+          </Grid>
+        ))}
+      </Grid>
+    );
+  };
+
   return (
     <Box sx={{ maxWidth: 900, mx: 'auto', px: 2, py: 4 }}>
       {/* Profile Header */}
@@ -148,7 +193,7 @@ const Profile = () => {
         alignItems="center"
         justifyContent="center"
       >
-        {/* Avatar Column */}
+        {/* Avatar */}
         <Grid
           item
           xs={12}
@@ -193,7 +238,7 @@ const Profile = () => {
           </Box>
         </Grid>
 
-        {/* Stats Column */}
+        {/* Stats */}
         <Grid
           item
           xs={12}
@@ -213,7 +258,7 @@ const Profile = () => {
               mb: 1,
             }}
           >
-            {/* Posts */}
+            {/* # of My Videos (posts) */}
             <Box sx={{ textAlign: 'center', mr: { xs: 2, sm: 4 } }}>
               <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
                 {videos.length}
@@ -237,7 +282,7 @@ const Profile = () => {
           </Box>
         </Grid>
 
-        {/* User Info & Actions Column */}
+        {/* User Info & Actions */}
         <Grid
           item
           xs={12}
@@ -304,6 +349,7 @@ const Profile = () => {
               <AnimatedChip label={profile.skillLevel || 'N/A'} />
             </Box>
 
+            {/* Favorite Gyms */}
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
                 Favorite Gyms
@@ -312,9 +358,10 @@ const Profile = () => {
                 <Stack direction="row" spacing={2} flexWrap="wrap">
                   {profile.gyms.map((gym) => {
                     const gymData = gymImages[gym.name];
-                    const gradientBorder = `linear-gradient(45deg, ${gymData.neon}, #ff00ff, #00ffff)`;
+                    const gradientBorder = `linear-gradient(45deg, ${
+                      gymData?.neon || '#fff'
+                    }, #ff00ff, #00ffff)`;
                     return gymData?.image ? (
-                      // Gym with image
                       <Box
                         key={gym._id}
                         sx={{
@@ -326,7 +373,7 @@ const Profile = () => {
                           justifyContent: 'center',
                           alignItems: 'center',
                           position: 'relative',
-                          background: gradientBorder, // Apply gradient border
+                          background: gradientBorder,
                         }}
                       >
                         <Box
@@ -347,7 +394,6 @@ const Profile = () => {
                         />
                       </Box>
                     ) : (
-                      // Gym without image
                       <Box
                         key={gym._id}
                         sx={{
@@ -357,8 +403,8 @@ const Profile = () => {
                           justifyContent: 'center',
                           alignItems: 'center',
                           borderRadius: '20%',
-                          background: gradientBorder, // Apply gradient border
-                          padding: '5px', // Space for border
+                          background: gradientBorder,
+                          padding: '5px',
                         }}
                       >
                         <Box
@@ -394,53 +440,35 @@ const Profile = () => {
         </Grid>
       </Grid>
 
-      {/* Video Grid */}
-      {videos.length > 0 ? (
-        <Grid container spacing={1}>
-          {videos.map((video) => (
-            <Grid item xs={4} sm={4} md={4} key={video._id}>
-              <Box
-                sx={{
-                  width: '100%',
-                  position: 'relative',
-                  paddingTop: '100%', // square ratio
-                  overflow: 'hidden',
-                  cursor: 'pointer',
-                  backgroundColor: '#000',
-                }}
-                onClick={() => setSelectedVideo(video)} // Open popup
-              >
-                <video
-                  src={video.videoUrl}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                  }}
-                  muted
-                  playsInline
-                />
-              </Box>
-            </Grid>
-          ))}
-        </Grid>
-      ) : (
-        <Box sx={{ textAlign: 'center', mt: 2 }}>
-          <Typography variant="body1">No videos yet.</Typography>
-        </Box>
-      )}
+      {/* 
+        3) Instagram-like tab bar using MUI's <Tabs> and <Tab> with icons only
+      */}
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+        <Tabs
+          value={activeTab}
+          onChange={(event, newValue) => setActiveTab(newValue)}
+          centered
+          textColor="inherit"
+          TabIndicatorProps={{ style: { backgroundColor: '#000' } }} // black bar indicator
+        >
+          <Tab icon={<GridOnIcon />} />           {/* 0 => My Videos */}
+          <Tab icon={<BookmarkBorderIcon />} />   {/* 1 => Saved Videos */}
+        </Tabs>
+      </Box>
+
+      {/* 4) Conditionally show "My Videos" or "Saved Videos" based on activeTab */}
+      {activeTab === 0 && renderVideoGrid(videos)}
+      {activeTab === 1 && renderVideoGrid(profile.savedVideos)}
 
       {/* Video Popup */}
       <VideoPopup
         open={!!selectedVideo}
         onClose={async () => {
-          setSelectedVideo(null); // Close the popup
+          setSelectedVideo(null);
           try {
-            const userVideos = await getVideosByProfile(profile._id); // Fetch updated videos
-            setVideos(userVideos); // Update the video list
+            // If you want to refresh the "My Videos" list after closing the popup
+            const userVideos = await getVideosByProfile(profile._id);
+            setVideos(userVideos);
           } catch (error) {
             console.error('Error refreshing videos:', error);
           }

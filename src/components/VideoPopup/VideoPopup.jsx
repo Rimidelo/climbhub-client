@@ -22,6 +22,7 @@ const VideoPopup = ({ open, onClose, video, user }) => {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
   const videoRef = useRef(null);
+console.log(video);
 
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(0);
