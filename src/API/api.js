@@ -148,7 +148,16 @@ export const getVideosByGym = async (gymId) => {
   }
 };
 
-
+export const toggleSaveVideo = async (videoId, userId) => {
+  try {
+    const response = await axios.post(`${API_URL}/videos/${videoId}/save`, { userId });
+    return response.data; 
+    // { message: 'Video saved' or 'Video unsaved', savedVideos: [...] }
+  } catch (error) {
+    console.error('Error toggling save:', error);
+    throw error;
+  }
+};
 
 // -------------------
 // Profile

@@ -1,7 +1,7 @@
 // src/components/Feed/Feed.jsx
 
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { getAllVideos, toggleLike, addComment, getComments } from '../../API/api';
+import { getAllVideos, toggleLike, addComment, getComments, toggleSaveVideo } from '../../API/api';
 import { UserContext } from '../../contexts/UserContext';
 import {
     Box,
@@ -20,6 +20,8 @@ import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import AnimatedChip from '../AnimatedChip/AnimatedChip';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 
 dayjs.extend(relativeTime);
 
@@ -141,6 +143,7 @@ const Feed = () => {
                                 handleLike={handleLike}
                                 setError={setError}
                                 preloadedComments={video.comments} // Pass preloaded comments
+                                user={user}
                             />
                         </Grid2>
                     ))}
@@ -150,65 +153,45 @@ const Feed = () => {
     );
 };
 
-const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
-    const { user } = useContext(UserContext);
+
+const VideoCard = ({ video, user, handleLike, setError }) => {
     const [isLiked, setIsLiked] = useState(video.likes.includes(user?._id));
     const [likesCount, setLikesCount] = useState(video.likes.length);
+    // ----- "Save" state ------
+    const [isSaved, setIsSaved] = useState(
+        user?.profile?.savedVideos?.includes(video._id) || false
+    );
+
     const [commentText, setCommentText] = useState('');
-    const [comments, setComments] = useState(preloadedComments || []); // Use preloaded comments
+    const [comments, setComments] = useState(video.comments || []);
     const [addingComment, setAddingComment] = useState(false);
-    const [showAddComment, setShowAddComment] = useState(false); // Toggle for "Add a comment"
-    const [showAllComments, setShowAllComments] = useState(false); // Toggle for "View all comments"
+    const [showAddComment, setShowAddComment] = useState(false);
+    const [showAllComments, setShowAllComments] = useState(false);
+
     const videoRef = useRef(null);
-    console.log(comments);
 
-    const colorGradingMap = {
-        "Pink": "#FFC0CB",
-        "Green": "#008000",
-        "Yellow": "#FFFF00",
-        "Red": "#FF0000",
-        "Blue": "#0000FF",
-        "White": "#FFFFFF",
-        "Orange": "#FFA500",
-        "Light Green": "#90EE90",
-        "Black": "#000000"
-        // Add other colors as needed
-    };
-
-    // Intersection Observer Logic
-    // Intersection Observer Logic
+    // Intersection Observer logic to auto-play/pause
     useEffect(() => {
-        const videoElement = videoRef.current; // Store the current ref value in a variable
-
+        const videoElement = videoRef.current;
         const handleIntersection = (entries) => {
             entries.forEach((entry) => {
-                if (entry.isIntersecting) {
-                    videoElement?.play();
-                } else {
-                    videoElement?.pause();
-                }
+                if (entry.isIntersecting) videoElement?.play();
+                else videoElement?.pause();
             });
         };
 
         const observer = new IntersectionObserver(handleIntersection, {
-            threshold: 0.5, // Play the video when 50% of it is visible
+            threshold: 0.5,
         });
-
-        if (videoElement) {
-            observer.observe(videoElement);
-        }
-
+        if (videoElement) observer.observe(videoElement);
         return () => {
-            if (videoElement) {
-                observer.unobserve(videoElement);
-            }
+            if (videoElement) observer.unobserve(videoElement);
         };
     }, []);
 
-
+    // Handle new comment
     const handleAddComment = async () => {
         if (commentText.trim() === '') return;
-
         if (!user || !user._id) {
             setError('User not logged in');
             return;
@@ -216,13 +199,10 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
 
         setAddingComment(true);
         try {
-            // Add the new comment to the server
             await addComment(video._id, commentText.trim(), user._id);
-            setCommentText(''); // Clear the input field
-
-            // Re-fetch comments from the server
+            setCommentText('');
             const updatedComments = await getComments(video._id);
-            setComments(updatedComments); // Update comments state
+            setComments(updatedComments);
         } catch (err) {
             console.error('Error adding comment:', err);
         } finally {
@@ -230,16 +210,68 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
         }
     };
 
+    // Handle "save" toggle
+    const handleToggleSave = async () => {
+        if (!user || !user._id) {
+            setError('User not logged in');
+            return;
+        }
+        try {
+            // Optimistic update
+            setIsSaved((prev) => !prev);
+
+            const response = await toggleSaveVideo(video._id, user._id);
+
+            // If server says it's no longer saved:
+            if (
+                response.savedVideos &&
+                !response.savedVideos.includes(video._id)
+            ) {
+                setIsSaved(false);
+            } else if (
+                response.savedVideos &&
+                response.savedVideos.includes(video._id)
+            ) {
+                setIsSaved(true);
+            }
+        } catch (err) {
+            console.error('Error toggling save:', err);
+            setError('Failed to toggle save.');
+            // revert optimistic update
+            setIsSaved((prev) => !prev);
+        }
+    };
+
+    const colorGradingMap = {
+        Pink: '#FFC0CB',
+        Green: '#008000',
+        Yellow: '#FFFF00',
+        Red: '#FF0000',
+        Blue: '#0000FF',
+        White: '#FFFFFF',
+        Orange: '#FFA500',
+        'Light Green': '#90EE90',
+        Black: '#000000',
+        // etc.
+    };
+
     return (
         <Paper elevation={3} sx={{ mb: 3, borderRadius: 2, overflow: 'hidden' }}>
             {/* Top Section: User Info */}
-            <Box sx={{ display: 'flex', alignItems: 'center', p: 2, bgcolor: 'background.paper', justifyContent: 'space-between' }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    p: 2,
+                    bgcolor: 'background.paper',
+                    justifyContent: 'space-between',
+                }}
+            >
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <Avatar
                         sx={{ mr: 2 }}
                         src={`${video?.profile?.user?.image || '/default-avatar.png'}?t=${Date.now()}`}
-                    >
-                    </Avatar>
+                    />
                     <Typography variant="subtitle2" sx={{ mr: 2 }}>
                         {video.profile?.user?.name}
                     </Typography>
@@ -247,7 +279,8 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
                         {dayjs(video.createdAt).fromNow()}
                     </Typography>
                 </Box>
-                {video.gradingSystem === "Japanese-Colored" && colorGradingMap[video.difficultyLevel] ? (
+                {video.gradingSystem === 'Japanese-Colored' &&
+                    colorGradingMap[video.difficultyLevel] ? (
                     <Box
                         sx={{
                             width: 40,
@@ -282,11 +315,13 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
 
             {/* Actions Section */}
             <Box sx={{ display: 'flex', alignItems: 'center', p: 1 }}>
+                {/* Like Button */}
                 <IconButton
                     onClick={() => {
-                        setIsLiked((prev) => !prev); // Optimistic toggle
-                        setLikesCount((prev) => (isLiked ? prev - 1 : prev + 1)); // Adjust likes count
+                        setIsLiked((prev) => !prev);
+                        setLikesCount((prev) => (isLiked ? prev - 1 : prev + 1));
                         handleLike(video._id).catch(() => {
+                            // revert if error
                             setIsLiked((prev) => !prev);
                             setLikesCount((prev) => (isLiked ? prev + 1 : prev - 1));
                         });
@@ -297,6 +332,8 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
                 <Typography variant="body2" sx={{ mr: 2 }}>
                     {likesCount} likes
                 </Typography>
+
+                {/* Comment Button */}
                 <IconButton
                     onClick={() => setShowAddComment((prev) => !prev)}
                     sx={{ ml: 'auto' }}
@@ -306,10 +343,23 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
                 <Typography variant="body2" sx={{ ml: 1 }}>
                     {comments.length} comments
                 </Typography>
+
+                {/* Save Button */}
+                <IconButton onClick={handleToggleSave} sx={{ ml: 1 }}>
+                    {isSaved ? <BookmarkIcon color="primary" /> : <BookmarkBorderIcon />}
+                </IconButton>
             </Box>
 
             {/* Description Section */}
-            <Box sx={{ px: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+            <Box
+                sx={{
+                    px: 2,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    mb: 3,
+                }}
+            >
                 <Typography variant="body2" sx={{ fontWeight: 600 }}>
                     {video.description}
                 </Typography>
@@ -328,18 +378,13 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
                 {(showAllComments ? comments : comments.slice(0, 2)).map((comment) => (
                     <Box
                         key={comment._id}
-                        sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            mb: 2,
-                        }}
+                        sx={{ display: 'flex', alignItems: 'center', mb: 2 }}
                     >
                         <Avatar
                             sx={{ mr: 2, width: 32, height: 32 }}
                             alt={comment.profile?.user?.name}
                             src={comment.profile?.user?.image}
-                        >
-                        </Avatar>
+                        />
                         <Typography variant="body2" sx={{ flexGrow: 1 }}>
                             <strong>{comment.profile?.user?.name}:</strong> {comment.text}
                         </Typography>
@@ -352,14 +397,14 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
                         sx={{ mt: 1, mb: 1, cursor: 'pointer' }}
                         onClick={() => setShowAllComments((prev) => !prev)}
                     >
-                        {showAllComments ? 'Hide comments' : `View all ${comments.length} comments`}
+                        {showAllComments
+                            ? 'Hide comments'
+                            : `View all ${comments.length} comments`}
                     </Typography>
                 )}
             </Box>
 
-
-
-            {/* Add Comment Section - Toggle Visibility */}
+            {/* Add Comment Section */}
             {showAddComment && (
                 <Box
                     sx={{
@@ -367,7 +412,7 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
                         alignItems: 'center',
                         px: 2,
                         pt: 1,
-                        pb: 2, // Add space at the bottom
+                        pb: 2,
                         borderTop: '1px solid rgba(0,0,0,0.1)',
                     }}
                 >
@@ -393,5 +438,6 @@ const VideoCard = ({ video, handleLike, setError, preloadedComments }) => {
         </Paper>
     );
 };
+
 export { VideoCard };
 export default Feed;
