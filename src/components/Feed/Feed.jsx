@@ -240,22 +240,6 @@ const VideoCard = ({ video, user, isSaved, onToggleSave, onLike, setError }) => 
     onLike(video._id, isLiked, setIsLiked, setLikesCount);
   };
 
-  const handleAddComment = async () => {
-    if (!commentText.trim() || !user?._id) {
-      setError('User not logged in or empty comment.');
-      return;
-    }
-    try {
-      await addComment(video._id, commentText.trim(), user._id);
-      setCommentText('');
-      const updated = await getComments(video._id);
-      setComments(updated);
-    } catch (err) {
-      console.error('Error adding comment:', err);
-      setError('Failed to add comment.');
-    }
-  };
-
   // color map for difficulty
   const colorGradingMap = {
     Pink: '#FFC0CB',
