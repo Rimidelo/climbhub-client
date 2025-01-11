@@ -27,7 +27,6 @@ import {
   getComments,
   toggleLike,
   addComment,
-  // Import your toggleSaveVideo function
   toggleSaveVideo,
   getUserProfile
 } from '../../API/api';
@@ -50,7 +49,7 @@ const colorGradingMap = {
 const Reels = () => {
   const { user } = useContext(UserContext);
 
-  const [,setProfile] = useState(null);
+  const [, setProfile] = useState(null);
   const [videos, setVideos] = useState([]); // All videos
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -115,8 +114,6 @@ const Reels = () => {
     fetchAllData();
   }, [user]);
 
-
-
   // IntersectionObserver to auto-play/pause
   useEffect(() => {
     if (!videos.length) return;
@@ -126,9 +123,11 @@ const Reels = () => {
       entries.forEach((entry) => {
         const videoEl = entry.target;
         if (entry.isIntersecting) {
-          videoEl.play().catch((err) => {
-            console.warn('Cannot play video', err);
-          });
+          videoEl
+            .play()
+            .catch((err) => {
+              console.warn('Cannot play video', err);
+            });
         } else {
           videoEl.pause();
         }
@@ -223,20 +222,50 @@ const Reels = () => {
     setSelectedVideo(null);
   };
 
-  // Add comment
+  // Add comment (with immediate user image display)
   const handleAddComment = async () => {
     if (!commentText.trim() || !selectedVideo) return;
+
     try {
+      // 1) Post the new comment to the backend
       const newComment = await addComment(selectedVideo._id, commentText.trim(), user._id);
+
+      // 2) If your server doesn't return a fully populated comment, manually attach user data:
+      //    (If your server already returns .profile.user.image, you can skip this step.)
+      const newCommentPopulated = {
+        ...newComment,
+        profile: {
+          ...newComment.profile,
+          user: {
+            // fallback to newComment.profile?.user, or override with local user data
+            ...newComment.profile?.user,
+            image: newComment.profile?.user?.image || user.image,
+            name: newComment.profile?.user?.name || user.name,
+          },
+        },
+      };
+
+      // 3) Update the main videos array
       setVideos((prev) =>
         prev.map((video) => {
           if (video._id !== selectedVideo._id) return video;
           return {
             ...video,
-            comments: [...video.comments, newComment],
+            comments: [...video.comments, newCommentPopulated],
           };
         })
       );
+
+      // 4) Update `selectedVideo` so the modal shows the new comment immediately
+      setSelectedVideo((prevVideo) => {
+        if (!prevVideo) return null;
+        return {
+          ...prevVideo,
+          comments: [...prevVideo.comments, newCommentPopulated],
+        };
+      });
+
+      // 5) Clear the text field
       setCommentText('');
     } catch (err) {
       console.error('Error adding comment:', err);
@@ -246,7 +275,13 @@ const Reels = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="100vh" bgcolor="black">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="100vh"
+        bgcolor="black"
+      >
         <CircularProgress />
       </Box>
     );
@@ -315,7 +350,8 @@ const Reels = () => {
               )}
 
               {/* Grading Indicator */}
-              {video.gradingSystem === 'Japanese-Colored' && colorGradingMap[video.difficultyLevel] ? (
+              {video.gradingSystem === 'Japanese-Colored' &&
+              colorGradingMap[video.difficultyLevel] ? (
                 <Box
                   sx={{
                     position: 'absolute',
