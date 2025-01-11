@@ -50,7 +50,7 @@ const colorGradingMap = {
 const Reels = () => {
   const { user } = useContext(UserContext);
 
-  const [profile, setProfile] = useState(null);
+  const [,setProfile] = useState(null);
   const [videos, setVideos] = useState([]); // All videos
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

@@ -39,7 +39,7 @@ dayjs.extend(relativeTime);
 const Feed = () => {
   const { user } = useContext(UserContext);
 
-  const [profile, setProfile] = useState(null);        // store user’s profile (with savedVideos)
+  const [, setProfile] = useState(null);        // store user’s profile (with savedVideos)
   const [videos, setVideos] = useState([]);            // store the fetched videos
   const [savedMap, setSavedMap] = useState({});        // local map of whether each video is saved
   const [loading, setLoading] = useState(true);
