@@ -66,6 +66,14 @@ function App() {
               }
             />
             <Route
+              path="/profile/:id"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/gyms-with-videos"
               element={
                 <ProtectedRoute>

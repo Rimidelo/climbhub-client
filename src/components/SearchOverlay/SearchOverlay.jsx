@@ -47,8 +47,6 @@ function SearchOverlay({ anchorEl, open, onClose }) {
   };
 
   const handleResultClick = (profile) => {
-    // Navigate to /profile/:userId.
-    // Your backend's getProfile expects a user id; for example, use profile.user._id.
     navigate(`/profile/${profile.user._id}`);
     onClose();
   };
