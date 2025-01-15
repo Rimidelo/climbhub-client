@@ -1,65 +1,68 @@
 // src/components/SearchOverlay/SearchOverlay.jsx
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Popover,
   TextField,
   Avatar,
-  ListItem,
   ListItemAvatar,
   ListItemText,
   List as MUIList,
+  ListItemButton, // Import ListItemButton from MUI
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { searchProfiles } from './../../API/api';
 
 function SearchOverlay({ anchorEl, open, onClose }) {
   const navigate = useNavigate();
-
-  // Local states for search query and results
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
 
-  // Handle typing in the search field
-  const handleSearchChange = (e) => {
-    const value = e.target.value;
-    setQuery(value);
-
-    if (value.trim().length > 0) {
-      // Example fetch from your backend
-      fetch(`/api/users/search?q=${encodeURIComponent(value)}`)
-        .then((res) => res.json())
-        .then((data) => setResults(data))
-        .catch((err) => console.error(err));
-    } else {
+  // Function to call the API
+  const doSearch = async (searchTerm) => {
+    if (!searchTerm.trim()) {
+      setResults([]);
+      return;
+    }
+    try {
+      const profiles = await searchProfiles(searchTerm);
+      setResults(profiles);
+    } catch (err) {
+      console.error('Error searching profiles:', err);
       setResults([]);
     }
   };
 
-  // Clicking on a result
-  const handleResultClick = (userId) => {
-    // Navigate to the user's profile
-    navigate(`/profile/${userId}`);
-    // Close the popover
+  // Debounce the search input: when `query` changes, wait 300ms before calling doSearch
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (query) {
+        doSearch(query);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  const handleSearchChange = (e) => {
+    setQuery(e.target.value);
+  };
+
+  const handleResultClick = (profile) => {
+    // Navigate to /profile/:userId.
+    // Your backend's getProfile expects a user id; for example, use profile.user._id.
+    navigate(`/profile/${profile.user._id}`);
     onClose();
   };
 
   return (
     <Popover
       open={open}
-      anchorEl={anchorEl}
+      anchorEl={anchorEl} // Must be a visible DOM element
       onClose={onClose}
-      // Control the position of the popover relative to the icon
-      anchorOrigin={{
-        vertical: 'center',
-        horizontal: 'right',
-      }}
-      transformOrigin={{
-        vertical: 'center',
-        horizontal: 'left',
-      }}
+      anchorOrigin={{ vertical: 'center', horizontal: 'right' }}
+      transformOrigin={{ vertical: 'center', horizontal: 'left' }}
       PaperProps={{
         sx: {
-          width: 250, // Adjust width as needed
+          width: 250,
           p: 2,
           display: 'flex',
           flexDirection: 'column',
@@ -67,32 +70,29 @@ function SearchOverlay({ anchorEl, open, onClose }) {
         },
       }}
     >
-      {/* TextField for typing the query */}
       <TextField
         autoFocus
         variant="outlined"
         size="small"
-        placeholder="Search users..."
+        placeholder="Search..."
         value={query}
         onChange={handleSearchChange}
       />
 
-      {/* Results list */}
       <MUIList sx={{ maxHeight: 300, overflowY: 'auto', mt: 1 }}>
-        {results.map((user) => (
-          <ListItem
-            button
-            key={user.id}
-            onClick={() => handleResultClick(user.id)}
+        {results.map((profile) => (
+          <ListItemButton
+            key={profile._id}
+            onClick={() => handleResultClick(profile)}
           >
             <ListItemAvatar>
-              <Avatar src={user.profilePhotoUrl} />
+              <Avatar src={profile.user?.image || ''} />
             </ListItemAvatar>
             <ListItemText
-              primary={user.username}
-              secondary={user.displayName}
+              primary={profile.user?.name || 'Unknown User'}
+              secondary={profile.skillLevel || ''}
             />
-          </ListItem>
+          </ListItemButton>
         ))}
       </MUIList>
     </Popover>

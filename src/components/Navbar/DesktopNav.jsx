@@ -1,3 +1,5 @@
+// src/components/DesktopNav/DesktopNav.jsx
+
 import React, { useState } from 'react';
 import {
   Drawer,
@@ -16,6 +18,7 @@ import SlideshowIcon from '@mui/icons-material/Slideshow';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import { useNavigate } from 'react-router-dom';
+
 import logo from '../../assets/climbhublogo.png';
 import SearchOverlay from '../SearchOverlay/SearchOverlay';
 
@@ -24,14 +27,16 @@ const drawerWidth = 240;
 function DesktopNav() {
   const navigate = useNavigate();
 
-  // Replacing the boolean state with anchorEl for Popover2
+  // Popover anchor state
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
+  // Open the search popover
   const handleOpenSearch = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
+  // Close the search popover
   const handleCloseSearch = () => {
     setAnchorEl(null);
   };
@@ -129,13 +134,14 @@ function DesktopNav() {
 
           {/* Search - now a ListItem, aligned with others */}
           <ListItem disablePadding>
-            <ListItemButton onClick={(e) => handleOpenSearch(e)}>
-              <ListItemIcon>
-                <SearchIcon />
-              </ListItemIcon>
+              <ListItemButton onClick={(e) => handleOpenSearch(e)}>
+                <ListItemIcon>
+                  <SearchIcon />
+                </ListItemIcon>
               <ListItemText primary="Search" />
             </ListItemButton>
           </ListItem>
+
         </List>
 
         {/* Footer */}
