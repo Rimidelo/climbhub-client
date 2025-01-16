@@ -1,6 +1,6 @@
 // src/components/Profile/Profile.jsx
-
 import React, { useContext, useEffect, useState, useCallback } from 'react';
+import { useParams } from 'react-router-dom';
 import { UserContext } from '../../contexts/UserContext';
 import {
   getUserProfile,
@@ -21,8 +21,8 @@ import {
   Menu,
   MenuItem,
   Stack,
-  Tabs,            // <-- NEW
-  Tab,             // <-- NEW
+  Tabs,
+  Tab,
 } from '@mui/material';
 
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -32,45 +32,53 @@ import gymImages from '../../assets/data/gymImages';
 import EditProfile from '../EditProfile/EditProfile';
 
 // Icons for the tabs
-import GridOnIcon from '@mui/icons-material/GridOn';           // <-- For "My Videos"
-import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder'; // <-- For "Saved Videos"
+import GridOnIcon from '@mui/icons-material/GridOn'; // For "My Videos"
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder'; // For "Saved Videos"
 
 const Profile = () => {
+  const { id: routeId } = useParams(); // If present, this is the user id to display
   const { user, handleLogout } = useContext(UserContext);
+  
+  // Determine if we are viewing our own profile.
+  const isOwnProfile = !routeId || routeId === user._id;
+  // If no route parameter is provided, use current user ID.
+  const profileUserId = isOwnProfile ? user._id : routeId;
+
+  // Component state
   const [profile, setProfile] = useState(null);
-  const [videos, setVideos] = useState([]);       // "My Videos" (uploaded)
+  const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [, setError] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
   const [hovered, setHovered] = useState(false);
   const [editProfileOpen, setEditProfileOpen] = useState(false);
-
-  // NEW: Keep track of which tab is active: 0 => My Videos, 1 => Saved Videos
   const [activeTab, setActiveTab] = useState(0);
 
   const fetchProfileData = useCallback(async () => {
     try {
-      const profileData = await getUserProfile(user._id);
-      // The server populates "savedVideos," so profileData.savedVideos is available
+      const profileData = await getUserProfile(profileUserId);
       const userVideos = (await getVideosByProfile(profileData._id)) || [];
       setProfile(profileData);
       setVideos(userVideos);
     } catch (error) {
       console.error('Error fetching profile data:', error);
+      setError('Failed to load profile data.');
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [profileUserId]);
 
   useEffect(() => {
-    if (user) fetchProfileData();
-  }, [user, fetchProfileData]);
+    if (profileUserId) {
+      fetchProfileData();
+    }
+  }, [profileUserId, fetchProfileData]);
 
+  // Handle profile image upload (only allowed for own profile)
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
-
     try {
       await uploadProfileImage(user._id, file);
       await fetchProfileData();
@@ -82,7 +90,6 @@ const Profile = () => {
   const handleLike = async (videoId) => {
     try {
       await toggleLike(videoId, user._id);
-      // Re-fetch or optimistically update
       const updatedVideos = await getVideosByProfile(profile._id);
       setVideos(updatedVideos);
     } catch (err) {
@@ -110,14 +117,7 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-        }}
-      >
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <CircularProgress />
       </Box>
     );
@@ -125,20 +125,13 @@ const Profile = () => {
 
   if (!profile) {
     return (
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-        }}
-      >
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <Typography variant="h6">User not found</Typography>
       </Box>
     );
   }
 
-  // Renders a grid of videos (shared by "My Videos" and "Saved")
+  // Render a grid of videos
   const renderVideoGrid = (videoList) => {
     if (!videoList || videoList.length === 0) {
       return (
@@ -147,16 +140,14 @@ const Profile = () => {
         </Box>
       );
     }
-
     return (
       <Grid container spacing={1}>
         {videoList.map((videoItem) => (
-          <Grid item xs={4} sm={4} md={4} key={videoItem._id}>
+          <Grid item xs={4} key={videoItem._id}>
             <Box
               sx={{
-                width: '100%',
                 position: 'relative',
-                paddingTop: '100%', // square ratio
+                paddingTop: '100%', // Square ratio
                 overflow: 'hidden',
                 cursor: 'pointer',
                 backgroundColor: '#000',
@@ -186,20 +177,8 @@ const Profile = () => {
   return (
     <Box sx={{ maxWidth: 900, mx: 'auto', px: 2, py: 4 }}>
       {/* Profile Header */}
-      <Grid
-        container
-        spacing={2}
-        sx={{ marginBottom: 2 }}
-        alignItems="center"
-        justifyContent="center"
-      >
-        {/* Avatar */}
-        <Grid
-          item
-          xs={12}
-          sm={4}
-          sx={{ display: 'flex', justifyContent: 'center' }}
-        >
+      <Grid container spacing={2} sx={{ mb: 2 }} alignItems="center" justifyContent="center">
+        <Grid item xs={12} sm={4} sx={{ display: 'flex', justifyContent: 'center' }}>
           <Box
             position="relative"
             onMouseEnter={() => setHovered(true)}
@@ -213,7 +192,8 @@ const Profile = () => {
                 height: { xs: 100, sm: 130, md: 150 },
               }}
             />
-            {hovered && (
+            {/* Show the edit overlay only for your own profile */}
+            {isOwnProfile && hovered && (
               <Box
                 sx={{
                   position: 'absolute',
@@ -239,128 +219,81 @@ const Profile = () => {
         </Grid>
 
         {/* Stats */}
-        <Grid
-          item
-          xs={12}
-          sm={4}
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: { xs: 'center', sm: 'flex-start' },
-            justifyContent: 'center',
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: { xs: 'space-around', sm: 'flex-start' },
-              width: '100%',
-              mb: 1,
-            }}
-          >
-            {/* # of My Videos (posts) */}
+        <Grid item xs={12} sm={4} sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'center', sm: 'flex-start' }, justifyContent: 'center' }}>
+          <Box sx={{ display: 'flex', justifyContent: { xs: 'space-around', sm: 'flex-start' }, width: '100%', mb: 1 }}>
             <Box sx={{ textAlign: 'center', mr: { xs: 2, sm: 4 } }}>
-              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                {videos.length}
-              </Typography>
+              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{videos.length}</Typography>
               <Typography variant="body2">Posts</Typography>
             </Box>
-            {/* Followers */}
             <Box sx={{ textAlign: 'center', mr: { xs: 2, sm: 4 } }}>
-              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                {profile.followersCount || 0}
-              </Typography>
+              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{profile.followersCount || 0}</Typography>
               <Typography variant="body2">Followers</Typography>
             </Box>
-            {/* Following */}
             <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                {profile.followingCount || 0}
-              </Typography>
+              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{profile.followingCount || 0}</Typography>
               <Typography variant="body2">Following</Typography>
             </Box>
           </Box>
         </Grid>
 
         {/* User Info & Actions */}
-        <Grid
-          item
-          xs={12}
-          sm={4}
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: { xs: 'center', sm: 'flex-start' },
-            justifyContent: 'center',
-            textAlign: { xs: 'center', sm: 'left' },
-          }}
-        >
+        <Grid item xs={12} sm={4} sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'center', sm: 'flex-start' }, justifyContent: 'center', textAlign: { xs: 'center', sm: 'left' } }}>
           <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
             {profile?.user?.name || 'Anonymous User'}
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Button
-              variant="outlined"
-              sx={{ mr: 1 }}
-              endIcon={<EditIcon />}
-              onClick={handleEditProfileOpen}
-            >
-              Edit Profile
-            </Button>
-            <IconButton onClick={handleMenuOpen}>
-              <SettingsIcon />
-            </IconButton>
+            {isOwnProfile && (
+              <Button variant="outlined" sx={{ mr: 1 }} endIcon={<EditIcon />} onClick={handleEditProfileOpen}>
+                Edit Profile
+              </Button>
+            )}
+            {isOwnProfile && (
+              <IconButton onClick={handleMenuOpen}>
+                <SettingsIcon />
+              </IconButton>
+            )}
           </Box>
         </Grid>
       </Grid>
 
-      {/* Settings Menu */}
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-        <MenuItem
-          onClick={() => {
-            handleLogout();
-            handleMenuClose();
-          }}
-          sx={{ color: 'red' }}
-        >
-          Logout
-        </MenuItem>
-      </Menu>
+      {/* Settings Menu (only for own profile) */}
+      {isOwnProfile && (
+        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+          <MenuItem
+            onClick={() => {
+              handleLogout();
+              handleMenuClose();
+            }}
+            sx={{ color: 'red' }}
+          >
+            Logout
+          </MenuItem>
+        </Menu>
+      )}
 
       <Divider sx={{ my: 2 }} />
 
-      {/* Additional Profile Details (Skill Level & Favorite Gyms) */}
+      {/* Additional Profile Details */}
       <Grid container spacing={2} sx={{ mb: 4 }}>
         <Grid item xs={12}>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: { xs: 'column', md: 'row' },
-              justifyContent: 'center',
-              alignItems: { xs: 'flex-start', md: 'center' },
-              gap: 4,
-            }}
-          >
-            {/* Skill Level */}
+          <Box sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', md: 'row' },
+            justifyContent: 'center',
+            alignItems: { xs: 'flex-start', md: 'center' },
+            gap: 4,
+          }}>
             <Box>
-              <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
-                Skill Level
-              </Typography>
+              <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>Skill Level</Typography>
               <AnimatedChip label={profile.skillLevel || 'N/A'} />
             </Box>
-
-            {/* Favorite Gyms */}
             <Box>
-              <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
-                Favorite Gyms
-              </Typography>
+              <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>Favorite Gyms</Typography>
               {profile.gyms && profile.gyms.length > 0 ? (
                 <Stack direction="row" spacing={2} flexWrap="wrap">
                   {profile.gyms.map((gym) => {
                     const gymData = gymImages[gym.name];
-                    const gradientBorder = `linear-gradient(45deg, ${
-                      gymData?.neon || '#fff'
-                    }, #ff00ff, #00ffff)`;
+                    const gradientBorder = `linear-gradient(45deg, ${gymData?.neon || '#fff'}, #ff00ff, #00ffff)`;
                     return gymData?.image ? (
                       <Box
                         key={gym._id}
@@ -384,10 +317,9 @@ const Profile = () => {
                             width: '100%',
                             height: '100%',
                             borderRadius: '20%',
-                            objectFit: 'fit',
+                            objectFit: 'cover',
                           }}
                           onError={(e) => {
-                            console.error(`Error loading image for ${gym.name}:`, e);
                             e.target.onerror = null;
                             e.target.src = '/images/placeholder.png';
                           }}
@@ -407,27 +339,16 @@ const Profile = () => {
                           padding: '5px',
                         }}
                       >
-                        <Box
+                        <Typography
                           sx={{
-                            width: '100%',
-                            height: '100%',
-                            borderRadius: '20%',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
+                            color: '#333',
+                            fontWeight: 'bold',
+                            fontSize: 10,
+                            textAlign: 'center',
                           }}
                         >
-                          <Typography
-                            sx={{
-                              color: '#333',
-                              fontWeight: 'bold',
-                              fontSize: 10,
-                              textAlign: 'center',
-                            }}
-                          >
-                            {gym.name}
-                          </Typography>
-                        </Box>
+                          {gym.name}
+                        </Typography>
                       </Box>
                     );
                   })}
@@ -440,33 +361,28 @@ const Profile = () => {
         </Grid>
       </Grid>
 
-      {/* 
-        3) Instagram-like tab bar using MUI's <Tabs> and <Tab> with icons only
-      */}
+      {/* Instagram-like Tab Bar */}
       <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
         <Tabs
           value={activeTab}
           onChange={(event, newValue) => setActiveTab(newValue)}
           centered
           textColor="inherit"
-          TabIndicatorProps={{ style: { backgroundColor: '#000' } }} // black bar indicator
+          TabIndicatorProps={{ style: { backgroundColor: '#000' } }}
         >
-          <Tab icon={<GridOnIcon />} />           {/* 0 => My Videos */}
-          <Tab icon={<BookmarkBorderIcon />} />   {/* 1 => Saved Videos */}
+          <Tab icon={<GridOnIcon />} />           {/* My Videos */}
+          <Tab icon={<BookmarkBorderIcon />} />   {/* Saved Videos */}
         </Tabs>
       </Box>
 
-      {/* 4) Conditionally show "My Videos" or "Saved Videos" based on activeTab */}
       {activeTab === 0 && renderVideoGrid(videos)}
       {activeTab === 1 && renderVideoGrid(profile.savedVideos)}
 
-      {/* Video Popup */}
       <VideoPopup
         open={!!selectedVideo}
         onClose={async () => {
           setSelectedVideo(null);
           try {
-            // If you want to refresh the "My Videos" list after closing the popup
             const userVideos = await getVideosByProfile(profile._id);
             setVideos(userVideos);
           } catch (error) {
@@ -479,7 +395,6 @@ const Profile = () => {
         user={user}
       />
 
-      {/* Edit Profile Modal */}
       <EditProfile
         open={editProfileOpen}
         handleClose={handleEditProfileClose}
