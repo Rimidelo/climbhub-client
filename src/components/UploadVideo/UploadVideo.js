@@ -205,6 +205,7 @@ const UploadVideo = () => {
       sx={{
         minHeight: '80vh',
         display: 'flex',
+        justifyContent: 'center',
         alignItems: 'center',
         p: 2,
       }}
