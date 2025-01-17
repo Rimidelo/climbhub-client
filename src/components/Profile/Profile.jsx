@@ -141,7 +141,7 @@ const Profile = () => {
       );
     }
     return (
-      <Grid container spacing={1}>
+      <Grid container spacing={1} mb={3}>
         {videoList.map((videoItem) => (
           <Grid item xs={4} key={videoItem._id}>
             <Box

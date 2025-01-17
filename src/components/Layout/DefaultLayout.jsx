@@ -17,9 +17,7 @@ function DefaultLayout() {
         component="main"
         sx={{
           flexGrow: 1,
-          // On md+ screens, add left margin to accommodate the drawer
-          ml: { md: `${drawerWidth}px` },
-          p: 2, // optional padding
+          p: 2,
         }}
       >
         <Outlet />

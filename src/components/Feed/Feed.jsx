@@ -169,22 +169,26 @@ const Feed = () => {
 
   return (
     <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-      <Box sx={{ maxWidth: '400px', width: '100%' }}>
+      <Box sx={{ maxWidth: 400, width: '100%' }}>
         {error && (
           <Typography color="error" variant="body1" align="center" gutterBottom>
             {error}
           </Typography>
         )}
-        <Grid2 container spacing={2}>
+
+        {/* Adjust the container’s props */}
+        <Grid2
+          container
+          spacing={2}
+          justifyContent="center"
+        >
           {videos.map((video) => (
             <Grid2
+              item
               xs={12}
               key={video._id}
-              sx={{
-                width: '100%',
-                maxWidth: '600px',
-                margin: '0 auto',
-              }}
+              // Remove margin: '0 auto' here
+              sx={{ width: '100%', maxWidth: 400 }}
             >
               <VideoCard
                 video={video}
@@ -254,7 +258,7 @@ const VideoCard = ({ video, user, isSaved, onToggleSave, onLike, setError }) => 
   };
 
   return (
-    <Paper elevation={3} sx={{ mb: 3, borderRadius: 2, overflow: 'hidden' }}>
+    <Paper elevation={3} sx={{ mt: 3, mb: 3, borderRadius: 2, overflow: 'hidden' }}>
       {/* Top: user info */}
       <Box
         sx={{
@@ -278,7 +282,7 @@ const VideoCard = ({ video, user, isSaved, onToggleSave, onLike, setError }) => 
           </Typography>
         </Box>
         {video.gradingSystem === 'Japanese-Colored' &&
-        colorGradingMap[video.difficultyLevel] ? (
+          colorGradingMap[video.difficultyLevel] ? (
           <Box
             sx={{
               width: 40,
