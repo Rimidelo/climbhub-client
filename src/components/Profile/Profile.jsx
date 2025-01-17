@@ -225,14 +225,6 @@ const Profile = () => {
               <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{videos.length}</Typography>
               <Typography variant="body2">Posts</Typography>
             </Box>
-            <Box sx={{ textAlign: 'center', mr: { xs: 2, sm: 4 } }}>
-              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{profile.followersCount || 0}</Typography>
-              <Typography variant="body2">Followers</Typography>
-            </Box>
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{profile.followingCount || 0}</Typography>
-              <Typography variant="body2">Following</Typography>
-            </Box>
           </Box>
         </Grid>
 
