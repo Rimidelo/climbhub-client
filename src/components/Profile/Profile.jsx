@@ -225,9 +225,13 @@ const Profile = () => {
               <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{videos.length}</Typography>
               <Typography variant="body2">Posts</Typography>
             </Box>
+            <Box sx={{ textAlign: 'center', mr: { xs: 2, sm: 4 } }}>
+              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{profile.savedVideos.length}</Typography>
+              <Typography variant="body2">Saved Videos</Typography>
+            </Box>
           </Box>
         </Grid>
-
+        
         {/* User Info & Actions */}
         <Grid item xs={12} sm={4} sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'center', sm: 'flex-start' }, justifyContent: 'center', textAlign: { xs: 'center', sm: 'left' } }}>
           <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
