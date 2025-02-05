@@ -315,12 +315,13 @@ const Reels = () => {
             key={video._id || index}
             elevation={3}
             sx={{
-              height: '100vh',
+              // Use 80vh on extra-small screens and 100vh on medium and up
+              height: { xs: '90vh', md: '100vh' },
               scrollSnapAlign: 'start',
               display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               position: 'relative',
-              flexDirection: 'column', // Arrange children vertically
-              justifyContent: 'flex-start', // Align children to the top
               bgcolor: 'black',
             }}
             onClick={() => handleTogglePlayPause(index)}
@@ -329,7 +330,9 @@ const Reels = () => {
               sx={{
                 position: 'relative',
                 width: '100%',
-                height: '90%',
+                // Use full width on mobile, up to 400px on larger screens
+                maxWidth: { xs: '100%', md: 400 },
+                aspectRatio: '9 / 16',
                 overflow: 'hidden',
                 display: 'flex',
                 alignItems: 'center',
@@ -415,7 +418,6 @@ const Reels = () => {
                 ref={(el) => (videoRefs.current[index] = el)}
                 src={video.videoUrl}
                 loop
-                muted
                 playsInline
                 style={{
                   width: '100%',
