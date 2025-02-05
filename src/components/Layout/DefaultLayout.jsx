@@ -4,7 +4,7 @@ import { Box } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 import Navbar from '../Navbar/Navbar';
 
-const drawerWidth = 240; // match the DesktopNav drawerWidth
+// const drawerWidth = 240;
 
 function DefaultLayout() {
   return (
