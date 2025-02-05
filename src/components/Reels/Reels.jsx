@@ -316,7 +316,7 @@ const Reels = () => {
             elevation={3}
             sx={{
               // Use 80vh on extra-small screens and 100vh on medium and up
-              height: { xs: '90vh', md: '100vh' },
+              height: { xs: '80vh', md: '100vh' },
               scrollSnapAlign: 'start',
               display: 'flex',
               alignItems: 'center',
@@ -330,8 +330,7 @@ const Reels = () => {
               sx={{
                 position: 'relative',
                 width: '100%',
-                // Use full width on mobile, up to 400px on larger screens
-                maxWidth: { xs: '100%', md: 400 },
+                maxWidth: 400,
                 aspectRatio: '9 / 16',
                 overflow: 'hidden',
                 display: 'flex',
