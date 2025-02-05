@@ -39,6 +39,12 @@ function MobileNav() {
         elevation={3}
       >
         <BottomNavigation
+          sx={{
+            "& .MuiBottomNavigationAction-root": {
+              minWidth: 0, // Removes the default minimum width
+              padding: "6px 8px", // Adjust padding as needed
+            },
+          }}
           value={value}
           onChange={(event, newValue) => {
             setValue(newValue);
