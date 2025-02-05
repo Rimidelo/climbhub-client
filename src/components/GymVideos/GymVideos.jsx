@@ -189,7 +189,6 @@ const GymVideos = () => {
             >
               <video
                 src={video.videoUrl}
-                poster={video.thumbnailUrl || "/default-poster.jpg"}
                 preload="metadata"
                 muted
                 playsInline
